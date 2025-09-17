@@ -1,0 +1,5 @@
+﻿PUSH	15
+PUSH	3
+ADD
+PUSH	2
+ADD
