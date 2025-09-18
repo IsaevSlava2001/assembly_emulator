@@ -13,8 +13,9 @@ namespace assembly_emulator
     public partial class Form1 : Form
     {
         ASMTranslator ASMTranslator = new ASMTranslator("../../CommandsList.txt", "../../Code.txt");
-        int[] memory = new int[] { };
-        List<int> stack = new List<int>();
+        int[] memory = new int[30];
+        Stack<int> stack = new Stack<int>(30);
+        List<int> stack_list = new List<int>(30);
         string[] commands;
         int counter = 0;
         int iterator = 1;
@@ -29,7 +30,21 @@ namespace assembly_emulator
             commandLabel.Text = "";
             resultLabel.Text = "";
             counterLabel.Text = "0";
-
+            this.WindowState = FormWindowState.Maximized;
+            stackPanel.RowStyles.Clear();
+            stackPanel.RowCount = memory.Length + 1;
+            for (int i = 0; i < stackPanel.RowCount; i++)
+            {
+                // Каждая строка будет занимать равную долю доступного пространства
+                stackPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / stackPanel.RowCount));
+            }
+            memoryPanel.RowStyles.Clear();
+            memoryPanel.RowCount = memory.Length + 1;
+            for (int i = 0; i < memoryPanel.RowCount; i++)
+            {
+                // Каждая строка будет занимать равную долю доступного пространства
+                memoryPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / memoryPanel.RowCount));
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -47,31 +62,159 @@ namespace assembly_emulator
             counterLabel.Text = "0";
             AllCommands = getAllCommands(ASMTranslator);
             stackPanel.Controls.Clear();
+            MessageBox.Show("Файл прочитан. Анализ проведён успешно", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         }
 
         private void doCommand(Command comm)
         {
+            int addr;
+            int first;
+            int second;
+            int third;
+            int count;
             switch (comm.getCommand())
             {
                 case "PUSH":
-                    stack.Add(comm.getLiteral());
+                    stack.Push(comm.getLiteral());
                     counter += 1;
                     Redraw(comm);
                     iterator += 1;
                     break;
                 case "ADD":
                     //Добавить проверку на реальность
-                    int first = stack[stack.Count - 1];
-                    int second = stack[stack.Count - 2];
-                    int res = first + second;
-                    stack.RemoveAt(stack.Count - 1);
-                    stack.RemoveAt(stack.Count - 1);
-                    stack.Add(res);
+                    first = stack.Pop();
+                    second = stack.Pop();
+                    stack.Push(first + second);
                     counter -= 1;
                     Redraw(comm);
                     iterator += 1;
                     break;
+                case "READ":
+                    //Проверка
+                    addr = stack.Pop();
+                    stack.Push(memory[addr]);
+                    counter -= 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "WRITE":
+                    //Проверка
+                    addr = stack.Pop();
+                    count = stack.Pop();
+                    memory[addr] = count;
+                    counter -= 2;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "DUP":
+                    //Проверка
+                    stack.Push(stack.Peek());
+                    counter += 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "DROP":
+                    //Проверка
+                    stack.Pop();
+                    counter -= 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "LDC":
+                    //Проверка
+                    counter = stack.Peek() - 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "STC":
+                    //Проверка
+                    stack.Push(counter);
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "CMP":
+                    //Проверка
+                    //возвращаем большее
+                    first = stack.Pop();
+                    second = stack.Pop();
+                    if (first <= second) { stack.Push(second); }
+                    else { stack.Push(first); }
+                    counter -= 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "INC":
+                    stack.Push(stack.Pop() + 1);
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "DEC":
+                    stack.Push(stack.Pop() - 1);
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "INCC":
+                    counter += 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "DECC":
+                    counter -= 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "CMPC":
+                    //Проверка
+                    //возвращаем большее
+                    first = stack.Pop();
+                    if (first <= counter) { stack.Push(counter); }
+                    else { stack.Push(first); }
+                    counter -= 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "MUL":
+                    //Добавить проверку на реальность
+                    first = stack.Pop();
+                    second = stack.Pop();
+                    stack.Push(first * second);
+                    counter -= 1;
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "SWAP":
+                    //check
+                    first = stack.Pop();
+                    second = stack.Pop();
+                    stack.Push(first);
+                    stack.Push(second);
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "ROR":
+                    //check
+                    first = stack.Pop();
+                    second = stack.Pop();
+                    third = stack.Pop();
+                    stack.Push(second);
+                    stack.Push(first);
+                    stack.Push(third);
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+                case "ROL":
+                    //check
+                    first = stack.Pop();
+                    second = stack.Pop();
+                    third = stack.Pop();
+                    stack.Push(first);
+                    stack.Push(third);
+                    stack.Push(second);
+                    Redraw(comm);
+                    iterator += 1;
+                    break;
+
 
                 default:
                     break;
@@ -80,19 +223,19 @@ namespace assembly_emulator
 
         private void Redraw(Command command)
         {
-            commandLabel.Text += '\n' + command.ToString();
-            resultLabel.Text += '\n' + ASMTranslator.Work(command.ToString());
+            stack_list = stack.Reverse().ToList();
+            commandLabel.Text += '\n' +(iterator-1).ToString()+": "+ command.ToString();
+            resultLabel.Text += '\n' + (iterator - 1).ToString() + ": " + ASMTranslator.Work(command.ToString());
             counterLabel.Text = counter.ToString();
             if (iterator != 1)
             {
                 stackPanel.ColumnCount += 1;
             }
-            stackPanel.RowCount = stackPanel.RowCount < stack.Count? stack.Count: stackPanel.RowCount;
             stackPanel.Controls.Add(new Label { Text = iterator.ToString(), Font = new Font("Arial", 10, FontStyle.Bold)},iterator-1, 0);
             for (int col = 0; col < stack.Count; col++)
             {
                 stackPanel.Controls.Add(
-                    new Label { Text = stack[col].ToString(), AutoSize = true }, iterator-1, col+1);
+                    new Label { Text = stack_list[col].ToString(), AutoSize = true }, iterator-1, col+1);
             }
             counterLabel.Text = counter.ToString();
 
@@ -137,6 +280,11 @@ namespace assembly_emulator
             {
                 doCommand(AllCommands[iterator - 1]);
             }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            Environment.Exit(0);
         }
     }
 }
