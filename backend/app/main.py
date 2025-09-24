@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Optional, Any
 import json
 import io
-from emulator import StackEmulator, OpCode
+from app.emulator import StackEmulator, OpCode
 
 # Модели данных для API
 class ProgramRequest(BaseModel):
