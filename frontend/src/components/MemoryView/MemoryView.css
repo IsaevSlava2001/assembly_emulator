@@ -1,0 +1,128 @@
+/* ADD: Enhanced memory view styles with modern tables and animations */
+.memory-card {
+  margin-bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.memory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.memory-card .p-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 24px;
+  text-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+}
+
+.memory-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.memory-section h4 {
+  margin: 0 0 16px 0;
+  color: #4a5568;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.history-table,
+.ram-table {
+  border: 2px solid rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.history-table .p-datatable-tbody > tr > td,
+.ram-table .p-datatable-tbody > tr > td {
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4a5568;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  transition: all 0.2s ease;
+}
+
+.history-table .p-datatable-tbody > tr:hover > td,
+.ram-table .p-datatable-tbody > tr:hover > td {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(30, 64, 175, 0.05));
+  color: #2d3748;
+}
+
+.history-table .p-datatable-thead > tr > th,
+.ram-table .p-datatable-thead > tr > th {
+  padding: 16px 12px;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+}
+
+.history-table .p-datatable-tbody > tr:nth-child(even) > td,
+.ram-table .p-datatable-tbody > tr:nth-child(even) > td {
+  background: rgba(59, 130, 246, 0.02);
+}
+
+/* ADD: Enhanced empty state styling */
+.history-table .p-datatable-tbody > tr > td[colspan],
+.ram-table .p-datatable-tbody > tr > td[colspan] {
+  text-align: center;
+  color: #a0aec0;
+  font-style: italic;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(30, 64, 175, 0.05));
+}
+
+/* ADD: Responsive design for memory sections */
+@media (min-width: 768px) {
+  .memory-sections {
+    flex-direction: row;
+  }
+  
+  .memory-section {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .memory-sections {
+    gap: 24px;
+  }
+  
+  .history-table .p-datatable-tbody > tr > td,
+  .ram-table .p-datatable-tbody > tr > td {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .history-table .p-datatable-thead > tr > th,
+  .ram-table .p-datatable-thead > tr > th {
+    padding: 12px 8px;
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,139 @@
+/* ADD: Enhanced control panel styles with modern buttons and animations */
+.control-card {
+  margin-bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.control-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.control-card .p-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 24px;
+  text-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+}
+
+.control-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 8px;
+}
+
+.control-buttons .p-button {
+  min-width: 160px;
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.control-buttons .p-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.control-buttons .p-button:hover::before {
+  left: 100%;
+}
+
+/* ADD: Individual button styles with gradients */
+.control-buttons .p-button:not(.p-button-success):not(.p-button-info):not(.p-button-danger) {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.control-buttons .p-button:not(.p-button-success):not(.p-button-info):not(.p-button-danger):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.control-buttons .p-button.p-button-success {
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+.control-buttons .p-button.p-button-success:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+}
+
+.control-buttons .p-button.p-button-info {
+  background: linear-gradient(135deg, #4299e1, #3182ce);
+  color: white;
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+}
+
+.control-buttons .p-button.p-button-info:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(66, 153, 225, 0.4);
+}
+
+.control-buttons .p-button.p-button-danger {
+  background: linear-gradient(135deg, #f56565, #e53e3e);
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+}
+
+.control-buttons .p-button.p-button-danger:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(245, 101, 101, 0.4);
+}
+
+.control-buttons .p-button:active {
+  transform: translateY(-1px);
+}
+
+/* ADD: Button icons styling */
+.control-buttons .p-button .p-button-icon {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+/* ADD: Responsive design for control buttons */
+@media (max-width: 768px) {
+  .control-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .control-buttons .p-button {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .control-buttons .p-button {
+    height: 44px;
+    font-size: 0.9rem;
+  }
+}

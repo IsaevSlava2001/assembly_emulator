@@ -1,0 +1,111 @@
+/* ADD: Enhanced task panel styles with modern design */
+.task-card {
+  margin-bottom: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.task-card .p-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+}
+
+.task-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.task-buttons .p-button {
+  flex: 1;
+  min-width: 120px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  border: none;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.task-buttons .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.task-buttons .p-button:active {
+  transform: translateY(0);
+}
+
+.task-description {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.1));
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.task-description h4 {
+  margin: 0 0 12px 0;
+  color: #2d3748;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.task-description p {
+  margin: 0 0 12px 0;
+  color: #4a5568;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.task-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.3);
+}
+
+.code-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.code-actions .p-button {
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  background: rgba(255, 255, 255, 0.8);
+  color: #3b82f6;
+}
+
+.code-actions .p-button:hover {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}

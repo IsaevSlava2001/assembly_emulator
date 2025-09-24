@@ -1,0 +1,179 @@
+/* ADD: Command editor styles with modern design */
+.command-editor-card {
+  margin-bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.command-editor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.command-editor-card .p-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 24px;
+  text-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+}
+
+/* ADD: Tab styling */
+.command-tabs .p-tabview-nav {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(30, 64, 175, 0.05));
+  border-radius: 12px 12px 0 0;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.command-tabs .p-tabview-nav li .p-tabview-nav-link {
+  color: #4a5568;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  background: transparent;
+}
+
+.command-tabs .p-tabview-nav li .p-tabview-nav-link:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+}
+
+.command-tabs .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.command-tabs .p-tabview-panels {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 20px;
+}
+
+/* ADD: Code editor styling */
+.code-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.assembly-input {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border: 2px solid rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+}
+
+.assembly-input:focus {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* ADD: Sample programs styling */
+.sample-programs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.program-section {
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(30, 64, 175, 0.05));
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.program-section h4 {
+  margin: 0 0 12px 0;
+  color: #1e40af;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ADD: Help content styling */
+.help-content h4 {
+  color: #1e40af;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.command-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.command-group {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.command-group h5 {
+  color: #1e40af;
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.command-group ul {
+  margin: 0;
+  padding-left: 16px;
+  list-style: none;
+}
+
+.command-group li {
+  margin-bottom: 8px;
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.command-group code {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ADD: Responsive design */
+@media (max-width: 768px) {
+  .command-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .editor-actions {
+    flex-direction: column;
+  }
+  
+  .assembly-input {
+    font-size: 0.85rem;
+  }
+}
