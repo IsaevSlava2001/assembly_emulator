@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Button } from 'flowbite-react';
 import { useEmulatorStore } from '../../store/emulatorStore';
 import './TaskPanel.css';
 
 export const TaskPanel: React.FC = () => {
   const { state, setCurrentTask } = useEmulatorStore();
+  const [activeTask, setActiveTask] = useState<number | null>(null);
 
   const tasks = [
     {
@@ -20,8 +21,12 @@ export const TaskPanel: React.FC = () => {
   ];
 
   const handleTaskSelect = (taskId: number) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
+    // Toggle behavior: if same task is clicked, close it; otherwise open new task
+    if (activeTask === taskId) {
+      setActiveTask(null);
+      setCurrentTask(null);
+    } else {
+      setActiveTask(taskId);
       setCurrentTask(taskId);
     }
   };
@@ -29,17 +34,20 @@ export const TaskPanel: React.FC = () => {
   return (
     <Card className="glass-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h5 className="text-xl font-bold text-gray-900 font-heading">Задания</h5>
+        <h5 className="text-xl font-bold text-white-900 font-heading">Задания</h5>
         <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
       </div>
-      
+
       <div className="space-y-3 mb-6">
         {tasks.map((task) => (
           <Button
             key={task.id}
-            color={state.currentTask?.id === task.id ? "success" : "light"}
+            color={activeTask === task.id ? "success" : "light"}
             size="sm"
-            className={`w-full justify-start ${state.currentTask?.id === task.id ? 'ring-2 ring-green-500' : ''}`}
+            className={`w-full justify-start transition-all duration-300 ${activeTask === task.id
+                ? 'ring-2 ring-green-500 transform scale-105'
+                : 'hover:scale-102'
+              }`}
             onClick={() => handleTaskSelect(task.id)}
           >
             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -50,12 +58,19 @@ export const TaskPanel: React.FC = () => {
         ))}
       </div>
 
-      {state.currentTask && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <h4 className="text-lg font-semibold text-blue-900 mb-2 font-heading">{state.currentTask.title}</h4>
-          <p className="text-blue-800 text-sm leading-relaxed font-body">{state.currentTask.description}</p>
+      {activeTask && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 animate-fadeInUp">
+          <h4 className="text-lg font-semibold text-blue-900 mb-2 font-heading">
+            {tasks.find(t => t.id === activeTask)?.title}
+          </h4>
+          <p className="text-blue-800 text-sm leading-relaxed font-body">
+            {tasks.find(t => t.id === activeTask)?.description}
+          </p>
           <div className="mt-3 flex items-center">
-            <span className="chip-success">Активно</span>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <div className="w-2 h-2 bg-green-400 rounded-full mr-1.5 animate-pulse"></div>
+              Активно
+            </span>
           </div>
         </div>
       )}

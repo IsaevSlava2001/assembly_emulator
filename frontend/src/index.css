@@ -1,6 +1,4 @@
-/* Tailwind CSS will be loaded via CDN for now */
-
-/* Custom fonts */
+/* Minimal CSS - only fonts */
 @font-face {
   font-family: 'Spoof';
   src: url('/fonts/Spoof-Medium.ttf') format('truetype');
@@ -33,86 +31,23 @@
   font-display: swap;
 }
 
-/* Custom scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Basic font application */
+body {
+  font-family: 'PT Root UI', sans-serif;
+  font-weight: 400;
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Spoof', sans-serif;
+  font-weight: 500;
 }
 
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom right, #3b82f6, #1e40af);
-  border-radius: 4px;
-  transition: all 0.3s ease;
+code, pre, .font-mono {
+  font-family: 'Factor A', monospace;
+  font-weight: 400;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom right, #2563eb, #1e3a8a);
-}
-
-/* Selection styling */
-::selection {
-  background: #dbeafe;
-  color: #1f2937;
-}
-
-::-moz-selection {
-  background: #dbeafe;
-  color: #1f2937;
-}
-
-/* Focus styles for accessibility */
-*:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
-  outline-offset: 2px;
-}
-
-/* Smooth transitions for all interactive elements */
-button, 
-input, 
-textarea, 
-select {
-  transition: all 0.3s ease-out;
-}
-
-/* Custom animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-/* Glassmorphism effect */
-.glass {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Custom card hover effects */
-.card-hover {
-  transition: all 0.3s ease-out;
-}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-/* Font utility classes */
+/* Utility classes */
 .font-heading {
   font-family: 'Spoof', sans-serif;
   font-weight: 500;
@@ -129,22 +64,6 @@ select {
 }
 
 .font-mono {
-  font-family: 'Factor A', monospace;
-  font-weight: 400;
-}
-
-/* Apply default fonts to body and headings */
-body {
-  font-family: 'PT Root UI', sans-serif;
-  font-weight: 400;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Spoof', sans-serif;
-  font-weight: 500;
-}
-
-code, pre, .font-mono {
   font-family: 'Factor A', monospace;
   font-weight: 400;
 }

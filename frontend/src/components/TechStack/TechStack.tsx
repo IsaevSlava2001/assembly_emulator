@@ -54,7 +54,7 @@ export const TechStack: React.FC = () => {
   return (
     <Card className="glass-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h5 className="text-xl font-bold text-gray-900 font-heading">Стек технологий</h5>
+        <h5 className="text-xl font-bold text-white-900 font-heading">Стек технологий</h5>
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
           <span className="text-sm text-gray-600">Активен</span>
@@ -71,30 +71,19 @@ export const TechStack: React.FC = () => {
               {technologies
                 .filter(tech => tech.category === category)
                 .map((tech) => (
-                  <div key={tech.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-                        style={{ backgroundColor: tech.color }}
+                  <div key={tech.name} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-all hover:shadow-md">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge
+                        color="info"
+                        size="sm"
+                        className="px-3 py-1.5 font-body"
+                        style={{ backgroundColor: tech.color, color: 'white', border: 'none' }}
                       >
-                        {tech.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-gray-900">{tech.name}</span>
-                          <Badge color="gray" size="sm">v{tech.version}</Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 font-body">{tech.description}</p>
-                      </div>
+                        {tech.name}
+                      </Badge>
+                      <span className="text-xs text-gray-500 font-body">v{tech.version}</span>
                     </div>
-                    <Badge
-                      color="info"
-                      size="sm"
-                      className="px-3 py-1"
-                      style={{ backgroundColor: tech.color, color: 'white' }}
-                    >
-                      {tech.name}
-                    </Badge>
+                    <p className="text-sm text-gray-700 font-body leading-relaxed">{tech.description}</p>
                   </div>
                 ))}
             </div>
@@ -102,22 +91,7 @@ export const TechStack: React.FC = () => {
         ))}
       </div>
 
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="text-2xl font-bold text-blue-600">{technologies.length}</div>
-            <div className="text-sm text-blue-800">Технологий</div>
-          </div>
-          <div className="bg-green-50 rounded-lg p-4">
-            <div className="text-2xl font-bold text-green-600">{categories.length}</div>
-            <div className="text-sm text-green-800">Категорий</div>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4">
-            <div className="text-2xl font-bold text-purple-600">2025</div>
-            <div className="text-sm text-purple-800">Год разработки</div>
-          </div>
-        </div>
-      </div>
+
     </Card>
   );
 };

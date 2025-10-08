@@ -5,6 +5,98 @@
     <link rel="icon" type="image/png" href="/icons/Jquery-terminal-emulator-logo.svg.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Эмулятор Процессора - Assembly Emulator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primereact@10.9.7/resources/themes/lara-dark-blue/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primereact@10.9.7/resources/primereact.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeicons@7.0.0/primeicons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowbite@2.4.0/dist/flowbite.css">
+    <style>
+      @font-face {
+        font-family: 'Spoof';
+        src: url('/fonts/Spoof-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+      
+      @font-face {
+        font-family: 'PT Root UI';
+        src: url('/fonts/PT-Root-UI_Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      
+      @font-face {
+        font-family: 'PT Root UI';
+        src: url('/fonts/PT-Root-UI_Light.ttf') format('truetype');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+      }
+      
+      @font-face {
+        font-family: 'Factor A';
+        src: url('/fonts/FactorA-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      
+      body {
+        font-family: 'PT Root UI', sans-serif;
+        font-weight: 400;
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Spoof', sans-serif;
+        font-weight: 500;
+      }
+      
+      code, pre, .font-mono {
+        font-family: 'Factor A', monospace;
+        font-weight: 400;
+      }
+      
+      .font-heading {
+        font-family: 'Spoof', sans-serif;
+        font-weight: 500;
+      }
+      
+      .font-body {
+        font-family: 'PT Root UI', sans-serif;
+        font-weight: 400;
+      }
+      
+      .font-body-light {
+        font-family: 'PT Root UI', sans-serif;
+        font-weight: 300;
+      }
+      
+      .font-mono {
+        font-family: 'Factor A', monospace;
+        font-weight: 400;
+      }
+      
+      /* Animation for task panel */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .animate-fadeInUp {
+        animation: fadeInUp 0.3s ease-out;
+      }
+      
+      .hover\:scale-102:hover {
+        transform: scale(1.02);
+      }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
