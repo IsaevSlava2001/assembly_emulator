@@ -15,7 +15,7 @@ export const TaskPanel: React.FC = () => {
     // Toggle behavior: if same task is clicked, close it; otherwise open new task
     if (activeTask === taskId) {
       setActiveTask(null);
-      setCurrentTask(null);
+      setCurrentTask(0);
     } else {
       setActiveTask(taskId);
       setCurrentTask(taskId);

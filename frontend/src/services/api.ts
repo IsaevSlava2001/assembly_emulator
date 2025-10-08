@@ -17,6 +17,7 @@ class ApiService {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('HTTP Error:', response.status, errorText);
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
@@ -36,6 +37,7 @@ class ApiService {
 
   // Компилировать код
   async compileCode(sourceCode: string): Promise<{ success: boolean; machine_code: string[]; labels: any }> {
+    console.log('Отправляем запрос на компиляцию:', { source_code: sourceCode });
     return this.request('/api/compile', {
       method: 'POST',
       body: JSON.stringify({ source_code: sourceCode }),

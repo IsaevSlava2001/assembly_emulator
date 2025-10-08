@@ -18,16 +18,7 @@ export const CommandEditor: React.FC = () => {
   };
 
   const handleCompile = async () => {
-    if (!assemblyCode.trim()) {
-      setError('Введите код для компиляции');
-      return;
-    }
-
-    try {
-      await compileCode(assemblyCode);
-    } catch (error) {
-      console.error('Ошибка компиляции:', error);
-    }
+    await compileCode(assemblyCode);
   };
 
   const handleLoadExample = async () => {
