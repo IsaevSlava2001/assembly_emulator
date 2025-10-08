@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card } from 'primereact/card';
-import { Chip } from 'primereact/chip';
+import { Card, Badge } from 'flowbite-react';
 import { useEmulatorStore } from '../../store/emulatorStore';
 import './ProcessorView.css';
 
@@ -9,44 +8,76 @@ export const ProcessorView: React.FC = () => {
   const { processor } = state;
 
   return (
-    <Card title="Процессор" className="processor-card">
-      <div className="processor-grid">
-        <div className="processor-item">
-          <label>Счётчик команд</label>
-          <div className="value-display">
-            {processor.programCounter}
+    <Card className="glass-card p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h5 className="text-xl font-bold text-gray-900">Процессор</h5>
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-sm text-gray-600">Активен</span>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="bg-gray-50 rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Счётчик команд</label>
+            <div className="text-2xl font-mono font-bold text-primary-600 bg-white rounded-lg p-3 text-center">
+              {processor.programCounter}
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Текущая команда</label>
+            <div className="text-lg font-mono text-gray-800 bg-white rounded-lg p-3 text-center min-h-[3rem] flex items-center justify-center">
+              {processor.currentCommand || 'Нет команды'}
+            </div>
           </div>
         </div>
 
-        <div className="processor-item">
-          <label>Текущая команда</label>
-          <div className="value-display">
-            {processor.currentCommand || 'Нет команды'}
+        <div className="space-y-4">
+          <div className="bg-gray-50 rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-3">Флаги состояния</label>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                color={processor.flags.zero ? "success" : "gray"}
+                size="lg"
+                className="px-3 py-1"
+              >
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Zero
+              </Badge>
+              <Badge
+                color={processor.flags.carry ? "success" : "gray"}
+                size="lg"
+                className="px-3 py-1"
+              >
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Carry
+              </Badge>
+              <Badge
+                color={processor.flags.overflow ? "success" : "gray"}
+                size="lg"
+                className="px-3 py-1"
+              >
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Overflow
+              </Badge>
+            </div>
           </div>
-        </div>
 
-        <div className="processor-item">
-          <label>Флаги</label>
-          <div className="flags-container">
-            <Chip
-              label="Zero"
-              className={processor.flags.zero ? "p-chip-success" : "p-chip-secondary"}
-            />
-            <Chip
-              label="Carry"
-              className={processor.flags.carry ? "p-chip-success" : "p-chip-secondary"}
-            />
-            <Chip
-              label="Overflow"
-              className={processor.flags.overflow ? "p-chip-success" : "p-chip-secondary"}
-            />
-          </div>
-        </div>
-
-        <div className="processor-item">
-          <label>Стек</label>
-          <div className="value-display">
-            [{processor.stack.join(', ')}]
+          <div className="bg-gray-50 rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Стек</label>
+            <div className="text-lg font-mono text-gray-800 bg-white rounded-lg p-3 min-h-[3rem] flex items-center">
+              <span className="text-gray-400">[</span>
+              <span className="mx-2">{processor.stack.join(', ')}</span>
+              <span className="text-gray-400">]</span>
+            </div>
           </div>
         </div>
       </div>
