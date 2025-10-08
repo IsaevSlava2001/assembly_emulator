@@ -1,34 +1,29 @@
-import React, { useState } from 'react';
-import { Card, Button } from 'flowbite-react';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Spinner } from 'flowbite-react';
 import { useEmulatorStore } from '../../store/emulatorStore';
 import './TaskPanel.css';
 
 export const TaskPanel: React.FC = () => {
-  const { state, setCurrentTask } = useEmulatorStore();
+  const { tasks, loading, error, loadTasks, setCurrentTask, executeCode } = useEmulatorStore();
   const [activeTask, setActiveTask] = useState<number | null>(null);
 
-  const tasks = [
-    {
-      id: 1,
-      title: "Сумма элементов массива",
-      description: "Вычислить сумму всех элементов массива из 6-15 элементов. Массив хранится в памяти начиная с адреса 0x1000, где первый элемент - размер массива."
-    },
-    {
-      id: 2,
-      title: "Свертка двух массивов",
-      description: "Вычислить свертку двух массивов по 10 элементов каждый. Результат сохранить в память по адресу 0x1100."
-    }
-  ];
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
   const handleTaskSelect = (taskId: number) => {
     // Toggle behavior: if same task is clicked, close it; otherwise open new task
     if (activeTask === taskId) {
       setActiveTask(null);
-      setCurrentTask(null);
+      setCurrentTask(0);
     } else {
       setActiveTask(taskId);
       setCurrentTask(taskId);
     }
+  };
+
+  const handleExecuteTask = async (taskId: number) => {
+    await executeCode(taskId);
   };
 
   return (
@@ -38,25 +33,50 @@ export const TaskPanel: React.FC = () => {
         <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
       </div>
 
-      <div className="space-y-3 mb-6">
-        {tasks.map((task) => (
-          <Button
-            key={task.id}
-            color={activeTask === task.id ? "success" : "light"}
-            size="sm"
-            className={`w-full justify-start transition-all duration-300 ${activeTask === task.id
-                ? 'ring-2 ring-green-500 transform scale-105'
-                : 'hover:scale-102'
-              }`}
-            onClick={() => handleTaskSelect(task.id)}
-          >
-            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            {task.title}
-          </Button>
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <Spinner size="lg" />
+          <span className="ml-2 text-gray-600">Загрузка задач...</span>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      ) : (
+        <div className="space-y-3 mb-6">
+          {tasks.map((task) => (
+            <div key={task.id} className="space-y-2">
+              <Button
+                color={activeTask === task.id ? "success" : "light"}
+                size="sm"
+                className={`w-full justify-start transition-all duration-300 ${activeTask === task.id
+                  ? 'ring-2 ring-green-500 transform scale-105'
+                  : 'hover:scale-102'
+                  }`}
+                onClick={() => handleTaskSelect(task.id)}
+              >
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                {task.title}
+              </Button>
+              {activeTask === task.id && (
+                <Button
+                  color="info"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => handleExecuteTask(task.id)}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Выполнить задачу
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {activeTask && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 animate-fadeInUp">

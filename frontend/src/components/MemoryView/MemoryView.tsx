@@ -11,9 +11,9 @@ export const MemoryView: React.FC = () => {
 
   const historyData = memory.history.map((entry, index) => ({
     step: index + 1,
-    command: entry.command,
-    stack: `[${entry.stack.join(', ')}]`,
-    programCounter: entry.programCounter,
+    command: entry.command || 'N/A',
+    stack: `[${entry.stack ? entry.stack.join(', ') : ''}]`,
+    programCounter: entry.programCounter || 0,
   }));
 
   const ramData = memory.ram.map((value, index) => ({

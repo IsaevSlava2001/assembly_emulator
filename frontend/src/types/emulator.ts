@@ -11,30 +11,47 @@ export interface Command {
 
 export interface ProcessorState {
     stack: number[];
-    programCounter: number;
-    currentCommand: string;
+    program_counter: number;
+    current_command: string;
     flags: {
         zero: boolean;
         carry: boolean;
         overflow: boolean;
     };
+    is_halted: boolean;
 }
 
 export interface MemoryState {
     ram: number[];
-    history: {
-        timestamp: number;
-        stack: number[];
-        ram: number[];
-        programCounter: number;
-        command: string;
-    }[];
+    history: any[];
 }
 
 export interface EmulatorState {
     processor: ProcessorState;
     memory: MemoryState;
-    sourceCode: string;
-    machineCode: string[];
-    currentTask: Task | null;
+    source_code: string;
+    machine_code: string[];
+    current_task: number | null;
+}
+
+export interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: string;
+    message?: string;
+}
+
+export interface CompileRequest {
+    source_code: string;
+}
+
+export interface ExecuteRequest {
+    task_id?: number;
+    step_by_step?: boolean;
+}
+
+export interface TaskInfo {
+    id: number;
+    title: string;
+    description: string;
 }

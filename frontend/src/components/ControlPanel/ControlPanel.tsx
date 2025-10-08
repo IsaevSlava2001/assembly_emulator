@@ -4,7 +4,7 @@ import { useEmulatorStore } from '../../store/emulatorStore';
 import './ControlPanel.css';
 
 export const ControlPanel: React.FC = () => {
-  const { executeStep, executeAll, reset } = useEmulatorStore();
+  const { executeStep, executeCode, reset, loading } = useEmulatorStore();
 
   return (
     <Card className="glass-card p-6">
@@ -22,6 +22,7 @@ export const ControlPanel: React.FC = () => {
           size="lg"
           className="h-16 flex flex-col items-center justify-center space-y-2"
           onClick={executeStep}
+          disabled={loading}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -33,7 +34,8 @@ export const ControlPanel: React.FC = () => {
           color="success"
           size="lg"
           className="h-16 flex flex-col items-center justify-center space-y-2"
-          onClick={executeAll}
+          onClick={() => executeCode()}
+          disabled={loading}
         >
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
@@ -58,6 +60,7 @@ export const ControlPanel: React.FC = () => {
           size="lg"
           className="h-16 flex flex-col items-center justify-center space-y-2"
           onClick={reset}
+          disabled={loading}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

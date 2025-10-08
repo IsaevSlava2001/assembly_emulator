@@ -1,60 +1,163 @@
 import { create } from 'zustand';
-import type { EmulatorState } from '../types/emulator';
+import type { EmulatorState, TaskInfo } from '../types/emulator';
+import { apiService } from '../services/api';
 
 const initialState: EmulatorState = {
     processor: {
         stack: [],
-        programCounter: 0,
-        currentCommand: '',
+        program_counter: 0,
+        current_command: '',
         flags: {
             zero: false,
             carry: false,
             overflow: false,
         },
+        is_halted: false,
     },
     memory: {
         ram: [],
         history: [],
     },
-    sourceCode: '',
-    machineCode: [],
-    currentTask: null,
+    source_code: '',
+    machine_code: [],
+    current_task: null,
 };
 
 export const useEmulatorStore = create<{
     state: EmulatorState;
+    tasks: TaskInfo[];
+    loading: boolean;
+    error: string | null;
+    current_task: number | null;
     setSourceCode: (code: string) => void;
     setCurrentTask: (taskId: number) => void;
-    executeStep: () => void;
-    executeAll: () => void;
-    reset: () => void;
-}>((set) => ({
+    loadState: () => Promise<void>;
+    loadTasks: () => Promise<void>;
+    compileCode: (code: string) => Promise<void>;
+    executeCode: (taskId?: number) => Promise<void>;
+    executeStep: () => Promise<void>;
+    reset: () => Promise<void>;
+    setState: (newState: EmulatorState) => void;
+    setLoading: (loading: boolean) => void;
+    setError: (error: string | null) => void;
+}>((set, get) => ({
     state: initialState,
-    setSourceCode: (code) => set((state) => ({ state: { ...state.state, sourceCode: code } })),
-    setCurrentTask: (taskId) => {
-        const tasks = [
-            {
-                id: 1,
-                title: "Сумма элементов массива",
-                description: "Вычислить сумму всех элементов массива из 6-15 элементов. Массив хранится в памяти начиная с адреса 0x1000, где первый элемент - размер массива."
-            },
-            {
-                id: 2,
-                title: "Свертка двух массивов",
-                description: "Вычислить свертку двух массивов по 10 элементов каждый. Результат сохранить в память по адресу 0x1100."
-            }
-        ];
+    tasks: [],
+    loading: false,
+    error: null,
+    current_task: null,
 
-        const task = tasks.find(t => t.id === taskId);
-        if (task) {
-            set((state) => ({ state: { ...state.state, currentTask: task } }));
+    setSourceCode: (code) => set((state) => ({ 
+        state: { ...state.state, source_code: code } 
+    })),
+
+    setCurrentTask: (taskId) => set((state) => ({ 
+        state: { ...state.state, current_task: taskId },
+        current_task: taskId
+    })),
+
+    setState: (newState) => set({ state: newState }),
+    setLoading: (loading) => set({ loading }),
+    setError: (error) => set({ error }),
+
+    loadState: async () => {
+        try {
+            set({ loading: true, error: null });
+            const state = await apiService.getState();
+            set({ state, loading: false });
+        } catch (error) {
+            set({ 
+                error: error instanceof Error ? error.message : 'Ошибка загрузки состояния',
+                loading: false 
+            });
         }
     },
-    executeStep: () => {
-        // TODO: Implement single step execution
+
+    loadTasks: async () => {
+        try {
+            set({ loading: true, error: null });
+            const tasks = await apiService.getTasks();
+            set({ tasks, loading: false });
+        } catch (error) {
+            set({ 
+                error: error instanceof Error ? error.message : 'Ошибка загрузки задач',
+                loading: false 
+            });
+        }
     },
-    executeAll: () => {
-        // TODO: Implement full program execution
+
+    compileCode: async (code: string) => {
+        try {
+            set({ loading: true, error: null });
+            const result = await apiService.compileCode(code);
+            if (result.success) {
+                set((state) => ({ 
+                    state: { 
+                        ...state.state, 
+                        source_code: code,
+                        machine_code: result.machine_code 
+                    },
+                    loading: false 
+                }));
+            } else {
+                set({ error: 'Ошибка компиляции', loading: false });
+            }
+        } catch (error) {
+            set({ 
+                error: error instanceof Error ? error.message : 'Ошибка компиляции',
+                loading: false 
+            });
+        }
     },
-    reset: () => set({ state: initialState }),
+
+    executeCode: async (taskId?: number) => {
+        try {
+            set({ loading: true, error: null });
+            const result = await apiService.executeCode({ task_id: taskId });
+            if (result.success) {
+                set({ state: result.state, loading: false });
+            } else {
+                set({ error: 'Ошибка выполнения', loading: false });
+            }
+        } catch (error) {
+            set({ 
+                error: error instanceof Error ? error.message : 'Ошибка выполнения',
+                loading: false 
+            });
+        }
+    },
+
+    executeStep: async () => {
+        try {
+            set({ loading: true, error: null });
+            const result = await apiService.executeStep();
+            if (result.success) {
+                set({ state: result.state, loading: false });
+            } else {
+                set({ error: 'Ошибка выполнения шага', loading: false });
+            }
+        } catch (error) {
+            set({ 
+                error: error instanceof Error ? error.message : 'Ошибка выполнения шага',
+                loading: false 
+            });
+        }
+    },
+
+    reset: async () => {
+        try {
+            set({ loading: true, error: null });
+            const result = await apiService.reset();
+            if (result.success) {
+                set({ state: result.state, loading: false });
+            } else {
+                set({ error: 'Ошибка сброса', loading: false });
+            }
+        } catch (error) {
+            set({ 
+                error: error instanceof Error ? error.message : 'Ошибка сброса',
+                loading: false 
+            });
+        }
+    },
 }));
