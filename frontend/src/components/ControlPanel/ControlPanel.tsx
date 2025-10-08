@@ -9,13 +9,13 @@ export const ControlPanel: React.FC = () => {
   return (
     <Card className="glass-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h5 className="text-xl font-bold text-gray-900">Управление</h5>
+        <h5 className="text-xl font-bold text-gray-900 font-heading">Управление</h5>
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
           <span className="text-sm text-gray-600">Готов</span>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <Button
           color="light"

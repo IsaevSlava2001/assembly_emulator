@@ -77,13 +77,13 @@ CONV_EXIT:
   return (
     <Card className="glass-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h5 className="text-xl font-bold text-gray-900">Редактор команд</h5>
+        <h5 className="text-xl font-bold text-gray-900 font-heading">Редактор команд</h5>
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
           <span className="text-sm text-gray-600">Редактирование</span>
         </div>
       </div>
-      
+
       <Tabs aria-label="Command Editor Tabs">
         <Tabs.Item title="Ассемблер" icon={() => (
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -125,7 +125,7 @@ CONV_EXIT:
             </div>
           </div>
         </Tabs.Item>
-        
+
         <Tabs.Item title="Примеры" icon={() => (
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
@@ -147,7 +147,7 @@ CONV_EXIT:
                 Загрузить пример
               </Button>
             </div>
-            
+
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <h4 className="text-lg font-semibold text-green-900 mb-3">Свертка двух массивов</h4>
               <p className="text-green-800 text-sm mb-4">Вычислить свертку двух массивов по 10 элементов каждый</p>
@@ -165,7 +165,7 @@ CONV_EXIT:
             </div>
           </div>
         </Tabs.Item>
-        
+
         <Tabs.Item title="Справка" icon={() => (
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
@@ -183,7 +183,7 @@ CONV_EXIT:
                   <li><code className="bg-gray-200 px-2 py-1 rounded">SWAP</code> - поменять местами два верхних элемента</li>
                 </ul>
               </div>
-              
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <h5 className="font-semibold text-gray-800 mb-3">Арифметические операции</h5>
                 <ul className="space-y-2 text-sm">
@@ -195,7 +195,7 @@ CONV_EXIT:
                   <li><code className="bg-gray-200 px-2 py-1 rounded">DEC</code> - декремент</li>
                 </ul>
               </div>
-              
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <h5 className="font-semibold text-gray-800 mb-3">Управление выполнением</h5>
                 <ul className="space-y-2 text-sm">

@@ -1,37 +1,74 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* Tailwind CSS will be loaded via CDN for now */
+
+/* Custom fonts */
+@font-face {
+  font-family: 'Spoof';
+  src: url('/fonts/Spoof-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Root UI';
+  src: url('/fonts/PT-Root-UI_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Root UI';
+  src: url('/fonts/PT-Root-UI_Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Factor A';
+  src: url('/fonts/FactorA-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* Custom scrollbar styling */
 ::-webkit-scrollbar {
-  @apply w-2 h-2;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-white/10 rounded;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gradient-to-br from-primary-500 to-primary-800 rounded transition-all duration-300;
+  background: linear-gradient(to bottom right, #3b82f6, #1e40af);
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply from-primary-600 to-primary-900;
+  background: linear-gradient(to bottom right, #2563eb, #1e3a8a);
 }
 
 /* Selection styling */
 ::selection {
-  @apply bg-primary-200 text-gray-800;
+  background: #dbeafe;
+  color: #1f2937;
 }
 
 ::-moz-selection {
-  @apply bg-primary-200 text-gray-800;
+  background: #dbeafe;
+  color: #1f2937;
 }
 
 /* Focus styles for accessibility */
 *:focus {
-  @apply outline-2 outline-primary-500/50 outline-offset-2;
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
 }
 
 /* Smooth transitions for all interactive elements */
@@ -39,7 +76,7 @@ button,
 input, 
 textarea, 
 select {
-  @apply transition-all duration-300 ease-out;
+  transition: all 0.3s ease-out;
 }
 
 /* Custom animations */
@@ -60,14 +97,54 @@ select {
 
 /* Glassmorphism effect */
 .glass {
-  @apply bg-white/95 backdrop-blur-xl border border-white/20;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Custom card hover effects */
 .card-hover {
-  @apply transition-all duration-300 ease-out;
+  transition: all 0.3s ease-out;
 }
 
 .card-hover:hover {
-  @apply -translate-y-1 shadow-2xl;
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Font utility classes */
+.font-heading {
+  font-family: 'Spoof', sans-serif;
+  font-weight: 500;
+}
+
+.font-body {
+  font-family: 'PT Root UI', sans-serif;
+  font-weight: 400;
+}
+
+.font-body-light {
+  font-family: 'PT Root UI', sans-serif;
+  font-weight: 300;
+}
+
+.font-mono {
+  font-family: 'Factor A', monospace;
+  font-weight: 400;
+}
+
+/* Apply default fonts to body and headings */
+body {
+  font-family: 'PT Root UI', sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Spoof', sans-serif;
+  font-weight: 500;
+}
+
+code, pre, .font-mono {
+  font-family: 'Factor A', monospace;
+  font-weight: 400;
 }

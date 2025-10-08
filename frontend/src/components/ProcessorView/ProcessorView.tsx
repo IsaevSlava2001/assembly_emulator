@@ -10,24 +10,24 @@ export const ProcessorView: React.FC = () => {
   return (
     <Card className="glass-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h5 className="text-xl font-bold text-gray-900">Процессор</h5>
+        <h5 className="text-xl font-bold text-gray-900 font-heading">Процессор</h5>
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span className="text-sm text-gray-600">Активен</span>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Счётчик команд</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">Счётчик команд</label>
             <div className="text-2xl font-mono font-bold text-primary-600 bg-white rounded-lg p-3 text-center">
               {processor.programCounter}
             </div>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Текущая команда</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">Текущая команда</label>
             <div className="text-lg font-mono text-gray-800 bg-white rounded-lg p-3 text-center min-h-[3rem] flex items-center justify-center">
               {processor.currentCommand || 'Нет команды'}
             </div>
@@ -36,7 +36,7 @@ export const ProcessorView: React.FC = () => {
 
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-3">Флаги состояния</label>
+            <label className="block text-sm font-medium text-gray-700 mb-3 font-body">Флаги состояния</label>
             <div className="flex flex-wrap gap-2">
               <Badge
                 color={processor.flags.zero ? "success" : "gray"}
@@ -72,7 +72,7 @@ export const ProcessorView: React.FC = () => {
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Стек</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">Стек</label>
             <div className="text-lg font-mono text-gray-800 bg-white rounded-lg p-3 min-h-[3rem] flex items-center">
               <span className="text-gray-400">[</span>
               <span className="mx-2">{processor.stack.join(', ')}</span>

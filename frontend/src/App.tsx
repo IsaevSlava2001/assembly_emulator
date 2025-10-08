@@ -10,7 +10,7 @@ import './styles/animations.css';
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-600 p-6 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-600 p-6 font-body">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-6 min-h-[calc(100vh-3rem)]">
         <div className="flex flex-col gap-6">
           <div className="fade-in-up">
