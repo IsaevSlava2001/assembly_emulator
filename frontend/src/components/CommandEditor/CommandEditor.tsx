@@ -18,12 +18,21 @@ export const CommandEditor: React.FC = () => {
   };
 
   const handleCompile = async () => {
-    await compileCode(assemblyCode);
+    if (!assemblyCode.trim()) {
+      setError('Введите код для компиляции');
+      return;
+    }
+
+    try {
+      await compileCode(assemblyCode);
+    } catch (error) {
+      console.error('Ошибка компиляции:', error);
+    }
   };
 
   const handleLoadExample = async () => {
     if (!current_task) return;
-    
+
     try {
       setLoadingExample(true);
       const result = await apiService.getTaskProgram(current_task);
@@ -55,22 +64,20 @@ export const CommandEditor: React.FC = () => {
       <div className="space-y-6">
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
-            <button 
-              className={`border-b-2 py-2 px-1 text-sm font-medium ${
-                activeTab === 'editor' 
-                  ? 'border-blue-500 text-blue-600' 
+            <button
+              className={`border-b-2 py-2 px-1 text-sm font-medium ${activeTab === 'editor'
+                  ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
               onClick={() => setActiveTab('editor')}
             >
               Ассемблер
             </button>
-            <button 
-              className={`border-b-2 py-2 px-1 text-sm font-medium ${
-                activeTab === 'examples' 
-                  ? 'border-blue-500 text-blue-600' 
+            <button
+              className={`border-b-2 py-2 px-1 text-sm font-medium ${activeTab === 'examples'
+                  ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
               onClick={() => setActiveTab('examples')}
             >
               Примеры
@@ -95,7 +102,7 @@ export const CommandEditor: React.FC = () => {
                 <p className="text-red-800 text-sm">{error}</p>
               </div>
             )}
-            
+
             <div className="flex space-x-3">
               <Button
                 color="info"
@@ -158,7 +165,7 @@ export const CommandEditor: React.FC = () => {
                 </Button>
               </div>
               <p className="text-blue-800 text-sm mb-4 font-body">
-                {current_task 
+                {current_task
                   ? 'Выберите задачу и нажмите "Загрузить пример" для получения готового кода'
                   : 'Сначала выберите задачу в панели "Задания"'
                 }

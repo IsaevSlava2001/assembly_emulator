@@ -15,7 +15,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Загружаем начальное состояние при запуске приложения
-    loadState();
+    // Не показываем ошибки при первом запуске, если backend не готов
+    loadState().catch(() => {
+      // Игнорируем ошибки при первом запуске
+    });
   }, [loadState]);
 
   return (
@@ -23,29 +26,29 @@ const App: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <ErrorDisplay error={error} onClose={() => setError(null)} />
         <div className="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-6 min-h-[calc(100vh-3rem)]">
-        <div className="flex flex-col gap-6">
-          <div className="fade-in-up">
-            <TaskPanel />
+          <div className="flex flex-col gap-6">
+            <div className="fade-in-up">
+              <TaskPanel />
+            </div>
+            <div className="fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <TechStack />
+            </div>
           </div>
-          <div className="fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <TechStack />
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-6">
-          <div className="fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <CommandEditor />
+          <div className="flex flex-col gap-6">
+            <div className="fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <CommandEditor />
+            </div>
+            <div className="fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <ProcessorView />
+            </div>
+            <div className="fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <MemoryView />
+            </div>
+            <div className="fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <ControlPanel />
+            </div>
           </div>
-          <div className="fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <ProcessorView />
-          </div>
-          <div className="fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <MemoryView />
-          </div>
-          <div className="fade-in-up" style={{ animationDelay: '0.5s' }}>
-            <ControlPanel />
-          </div>
-        </div>
         </div>
       </div>
     </div>

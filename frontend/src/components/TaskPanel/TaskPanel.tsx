@@ -4,7 +4,7 @@ import { useEmulatorStore } from '../../store/emulatorStore';
 import './TaskPanel.css';
 
 export const TaskPanel: React.FC = () => {
-  const { tasks, loading, error, loadTasks, setCurrentTask, executeCode } = useEmulatorStore();
+  const { tasks, loading, error, loadTasks, setCurrentTask } = useEmulatorStore();
   const [activeTask, setActiveTask] = useState<number | null>(null);
 
   useEffect(() => {
@@ -15,16 +15,13 @@ export const TaskPanel: React.FC = () => {
     // Toggle behavior: if same task is clicked, close it; otherwise open new task
     if (activeTask === taskId) {
       setActiveTask(null);
-      setCurrentTask(0);
+      setCurrentTask(null);
     } else {
       setActiveTask(taskId);
       setCurrentTask(taskId);
     }
   };
 
-  const handleExecuteTask = async (taskId: number) => {
-    await executeCode(taskId);
-  };
 
   return (
     <Card className="glass-card p-6">
@@ -60,19 +57,6 @@ export const TaskPanel: React.FC = () => {
                 </svg>
                 {task.title}
               </Button>
-              {activeTask === task.id && (
-                <Button
-                  color="info"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => handleExecuteTask(task.id)}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Выполнить задачу
-                </Button>
-              )}
             </div>
           ))}
         </div>
