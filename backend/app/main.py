@@ -72,7 +72,9 @@ async def compile_code(request: CompileRequest):
         raise HTTPException(status_code=500, detail="Assembler not initialized")
     
     try:
+        print(request.source_code)
         machine_code, labels = assembler.assemble(request.source_code)
+        print(machine_code)
         return {
             "success": True,
             "machine_code": machine_code,

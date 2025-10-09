@@ -1,18 +1,25 @@
-FROM node:18-alpine
+# Используем базовый образ Node.js
+FROM node:20-alpine
 
+# Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
-# Копируем package файлы
+# Копируем файлы package.json и package-lock.json
 COPY package*.json ./
 
 # Устанавливаем зависимости
 RUN npm install
 
-# Копируем исходный код
+# Копируем все файлы проекта внутрь контейнера
 COPY . .
 
-# Открываем порт
-EXPOSE 5173
+RUN npm i
+# Собираем приложение React
+RUN npm run build
 
-# Запускаем dev сервер
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Устанавливаем сервер статических файлов
+RUN npm install -g serve
+
+EXPOSE 3000
+
+CMD ["serve", "-s", "dist"]

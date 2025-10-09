@@ -40,7 +40,7 @@ export const useEmulatorStore = create<{
     setState: (newState: EmulatorState) => void;
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
-}>((set, get) => ({
+}>((set, /*get*/) => ({
     state: initialState,
     tasks: [],
     loading: false,
