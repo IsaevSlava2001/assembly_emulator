@@ -10,6 +10,8 @@ export const MemoryView: React.FC = () => {
   const { state } = useEmulatorStore();
   const { memory } = state;
   const [visibleMemoryItems, setVisibleMemoryItems] = useState(5);
+  const [previousHistoryLength, setPreviousHistoryLength] = useState(0);
+  const [previousRamLength, setPreviousRamLength] = useState(0);
 
   const historyData = memory.history.map((entry, index) => ({
     step: index + 1,
@@ -41,34 +43,107 @@ export const MemoryView: React.FC = () => {
     setVisibleMemoryItems(5);
   }, [memory.ram]);
 
+  // Отслеживаем изменения в истории для анимации
+  useEffect(() => {
+    if (memory.history.length > previousHistoryLength) {
+      // Новая запись в истории - можно добавить анимацию
+      setPreviousHistoryLength(memory.history.length);
+    }
+  }, [memory.history.length, previousHistoryLength]);
+
+  // Отслеживаем изменения в RAM для анимации
+  useEffect(() => {
+    if (memory.ram.length > previousRamLength) {
+      // Новая запись в RAM - можно добавить анимацию
+      setPreviousRamLength(memory.ram.length);
+    }
+  }, [memory.ram.length, previousRamLength]);
+
   return (
     <Card title="Память" className="memory-card">
       <div className="memory-sections">
         <div className="memory-section">
-          <h4>Память по времени</h4>
+          <h4 className="flex items-center">
+            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ВРЕМЯ</span>
+            Память по времени
+            {memory.history.length > 0 && (
+              <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
+                Активна
+              </span>
+            )}
+          </h4>
           <DataTable
             value={historyData}
             size="small"
-            className="history-table"
+            className={`history-table ${memory.history.length > previousHistoryLength ? 'animate-slide-in-up' : ''}`}
             emptyMessage="Нет данных"
           >
-            <Column field="step" header="Шаг" style={{ width: '60px' }} />
-            <Column field="command" header="Команда" />
-            <Column field="stack" header="Стек" />
-            <Column field="programCounter" header="Счётчик" style={{ width: '80px' }} />
+            <Column 
+              field="step" 
+              header="Шаг" 
+              style={{ width: '60px' }} 
+              body={(rowData) => (
+                <span className="font-mono text-blue-600 font-bold">{rowData.step}</span>
+              )}
+            />
+            <Column 
+              field="command" 
+              header="Команда" 
+              body={(rowData) => (
+                <span className="font-mono text-gray-800">{rowData.command}</span>
+              )}
+            />
+            <Column 
+              field="stack" 
+              header="Стек" 
+              body={(rowData) => (
+                <span className="font-mono text-green-600">{rowData.stack}</span>
+              )}
+            />
+            <Column 
+              field="programCounter" 
+              header="Счётчик" 
+              style={{ width: '80px' }}
+              body={(rowData) => (
+                <span className="font-mono text-purple-600 font-bold">{rowData.programCounter}</span>
+              )}
+            />
           </DataTable>
         </div>
 
         <div className="memory-section">
-          <h4>Состояние памяти</h4>
+          <h4 className="flex items-center">
+            <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ПАМЯТЬ</span>
+            Состояние памяти
+            {memory.ram.length > 0 && (
+              <span className="ml-2 bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
+                {memory.ram.length} ячеек
+              </span>
+            )}
+          </h4>
           <DataTable
             value={ramData}
             size="small"
-            className="ram-table"
+            className={`ram-table ${memory.ram.length > previousRamLength ? 'animate-slide-in-up' : ''}`}
             emptyMessage="Память пуста"
           >
-            <Column field="address" header="Адрес" style={{ width: '80px' }} />
-            <Column field="value" header="Значение" />
+            <Column 
+              field="address" 
+              header="Адрес" 
+              style={{ width: '80px' }}
+              body={(rowData) => (
+                <span className="font-mono text-blue-600 font-bold">0x{rowData.address}</span>
+              )}
+            />
+            <Column 
+              field="value" 
+              header="Значение"
+              body={(rowData) => (
+                <span className={`font-mono font-bold ${rowData.value !== 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                  {rowData.value}
+                </span>
+              )}
+            />
           </DataTable>
           <div className="mt-3 flex justify-center space-x-2">
             {hasMoreItems && (

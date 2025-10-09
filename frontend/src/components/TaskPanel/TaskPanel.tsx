@@ -8,14 +8,16 @@ export const TaskPanel: React.FC = () => {
   const [activeTask, setActiveTask] = useState<number | null>(null);
 
   useEffect(() => {
-    loadTasks();
+    loadTasks().catch((error) => {
+      console.warn('Не удалось загрузить задачи:', error);
+    });
   }, [loadTasks]);
 
   const handleTaskSelect = (taskId: number) => {
     // Toggle behavior: if same task is clicked, close it; otherwise open new task
     if (activeTask === taskId) {
       setActiveTask(null);
-      setCurrentTask(0);
+      setCurrentTask(null);
     } else {
       setActiveTask(taskId);
       setCurrentTask(taskId);

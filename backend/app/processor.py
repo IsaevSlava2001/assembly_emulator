@@ -2,7 +2,7 @@
 Эмулятор стекового процессора с Гарвардской архитектурой
 """
 from typing import List, Dict, Any, Optional
-from .models import ProcessorState, MemoryState, FlagType
+from .models import ProcessorState, MemoryState
 
 class StackProcessor:
     """Эмулятор стекового процессора"""
@@ -54,9 +54,9 @@ class StackProcessor:
     
     def update_flags(self, result: int):
         """Обновить флаги после операции"""
-        self.processor.flags[FlagType.ZERO] = (result == 0)
-        self.processor.flags[FlagType.CARRY] = (result < 0)  # Упрощенная логика
-        self.processor.flags[FlagType.OVERFLOW] = (result > 32767 or result < -32768)
+        self.processor.flags["zero"] = (result == 0)
+        self.processor.flags["carry"] = (result < 0)  # Упрощенная логика
+        self.processor.flags["overflow"] = (result > 32767 or result < -32768)
     
     def execute_instruction(self, instruction: str, operand: Optional[int] = None):
         """Выполнить одну инструкцию"""
@@ -169,7 +169,7 @@ class StackProcessor:
                 raise Exception("JMP requires operand")
         
         elif instruction == "JZ":
-            if operand is not None and self.processor.flags[FlagType.ZERO]:
+            if operand is not None and self.processor.flags["zero"]:
                 self.processor.program_counter = operand
             elif operand is not None:
                 self.processor.program_counter += 1
@@ -177,7 +177,7 @@ class StackProcessor:
                 raise Exception("JZ requires operand")
         
         elif instruction == "JNZ":
-            if operand is not None and not self.processor.flags[FlagType.ZERO]:
+            if operand is not None and not self.processor.flags["zero"]:
                 self.processor.program_counter = operand
             elif operand is not None:
                 self.processor.program_counter += 1
@@ -194,6 +194,56 @@ class StackProcessor:
         if instruction not in ["JMP", "JZ", "JNZ"]:
             self.processor.program_counter += 1
     
+    def step(self) -> bool:
+        """Выполнить один шаг программы. Возвращает True если выполнение продолжается"""
+        if self.processor.is_halted:
+            return False
+        
+        # Получаем следующую инструкцию из скомпилированного кода
+        if not hasattr(self, 'compiled_code') or not self.compiled_code:
+            return False
+        
+        if self.processor.program_counter >= len(self.compiled_code):
+            self.processor.is_halted = True
+            return False
+        
+        # Получаем инструкцию
+        instruction_line = self.compiled_code[self.processor.program_counter]
+        parts = instruction_line.split()
+        instruction = parts[0]
+        operand = int(parts[1]) if len(parts) > 1 else None
+        
+        # Сохраняем текущую команду для отображения
+        self.processor.current_command = instruction_line
+        
+        # Выполняем инструкцию
+        try:
+            self.execute_instruction(instruction, operand)
+            
+            # Сохраняем состояние в историю
+            self.memory.history.append({
+                'command': instruction_line,
+                'stack': self.processor.stack.copy(),
+                'programCounter': self.processor.program_counter,
+                'flags': self.processor.flags.copy()
+            })
+            
+            return not self.processor.is_halted
+            
+        except Exception as e:
+            self.processor.is_halted = True
+            self.processor.current_command = f"ERROR: {str(e)}"
+            return False
+    
+    def load_program(self, compiled_code: List[str], source_code: str = ""):
+        """Загрузить скомпилированную программу"""
+        self.compiled_code = compiled_code
+        self.source_code = source_code
+        self.processor.program_counter = 0
+        self.processor.is_halted = False
+        self.processor.current_command = ""
+        self.memory.history = []
+    
     def get_state(self) -> Dict[str, Any]:
         """Получить текущее состояние процессора"""
         return {
@@ -207,5 +257,8 @@ class StackProcessor:
             "memory": {
                 "ram": self.memory.ram.copy(),
                 "history": self.memory.history.copy()
-            }
+            },
+            "source_code": getattr(self, 'source_code', ''),
+            "machine_code": getattr(self, 'compiled_code', []),
+            "current_task": None
         }

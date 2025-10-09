@@ -68,11 +68,15 @@ async def get_state():
 @app.post("/api/compile")
 async def compile_code(request: CompileRequest):
     """Скомпилировать исходный код"""
-    if not assembler:
-        raise HTTPException(status_code=500, detail="Assembler not initialized")
+    if not assembler or not processor:
+        raise HTTPException(status_code=500, detail="Assembler or Processor not initialized")
     
     try:
         machine_code, labels = assembler.assemble(request.source_code)
+        
+        # Загружаем программу в процессор для пошагового выполнения
+        processor.load_program(machine_code, request.source_code)
+        
         return {
             "success": True,
             "machine_code": machine_code,
@@ -150,11 +154,13 @@ async def execute_step():
         raise HTTPException(status_code=500, detail="Processor not initialized")
     
     try:
-        # Здесь должна быть логика выполнения одного шага
-        # Пока возвращаем текущее состояние
+        # Выполняем один шаг программы
+        success = processor.step()
+        
         return {
             "success": True,
-            "state": processor.get_state()
+            "state": processor.get_state(),
+            "continues": success
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Ошибка выполнения шага: {str(e)}")

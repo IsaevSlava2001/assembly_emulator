@@ -8,9 +8,10 @@ import './CommandEditor.css';
 export const CommandEditor: React.FC = () => {
   const { state, setSourceCode, compileCode, loading, error, current_task } = useEmulatorStore();
   const [assemblyCode, setAssemblyCode] = useState(state.source_code);
-  const [activeTab, setActiveTab] = useState<'editor' | 'examples'>('editor');
+  const [activeTab, setActiveTab] = useState<'editor' | 'examples' | 'help'>('editor');
   const [exampleCode, setExampleCode] = useState<string>('');
   const [loadingExample, setLoadingExample] = useState(false);
+  const [compileSuccess, setCompileSuccess] = useState(false);
 
   const handleCodeChange = (code: string) => {
     setAssemblyCode(code);
@@ -18,11 +19,22 @@ export const CommandEditor: React.FC = () => {
   };
 
   const handleCompile = async () => {
-    await compileCode(assemblyCode);
+    setCompileSuccess(false);
+    try {
+      await compileCode(assemblyCode);
+      setCompileSuccess(true);
+      // Автоматически скрываем сообщение об успехе через 3 секунды
+      setTimeout(() => setCompileSuccess(false), 3000);
+    } catch (error) {
+      setCompileSuccess(false);
+    }
   };
 
   const handleLoadExample = async () => {
-    if (!current_task) return;
+    if (!current_task) {
+      console.warn('Не выбрана задача для загрузки примера');
+      return;
+    }
 
     try {
       setLoadingExample(true);
@@ -57,8 +69,8 @@ export const CommandEditor: React.FC = () => {
           <nav className="-mb-px flex space-x-8">
             <button
               className={`border-b-2 py-2 px-1 text-sm font-medium ${activeTab === 'editor'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               onClick={() => setActiveTab('editor')}
             >
@@ -66,14 +78,20 @@ export const CommandEditor: React.FC = () => {
             </button>
             <button
               className={`border-b-2 py-2 px-1 text-sm font-medium ${activeTab === 'examples'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               onClick={() => setActiveTab('examples')}
             >
               Примеры
             </button>
-            <button className="border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+            <button
+              className={`border-b-2 py-2 px-1 text-sm font-medium ${activeTab === 'help'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              onClick={() => setActiveTab('help')}
+            >
               Справка
             </button>
           </nav>
@@ -91,6 +109,17 @@ export const CommandEditor: React.FC = () => {
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
                 <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+            
+            {compileSuccess && !error && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 animate-fade-in">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-green-800 text-sm font-medium">Ошибок нет</p>
+                </div>
               </div>
             )}
 
@@ -128,7 +157,7 @@ export const CommandEditor: React.FC = () => {
               </Button>
             </div>
           </div>
-        ) : (
+        ) : activeTab === 'examples' ? (
           <div className="space-y-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
@@ -198,6 +227,178 @@ export const CommandEditor: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+              <h4 className="text-xl font-bold text-green-900 font-heading mb-4">
+                📚 Справочник по ассемблеру
+              </h4>
+              <p className="text-green-800 text-sm mb-4 font-body">
+                Полное руководство по всем поддерживаемым инструкциям стекового процессора
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Пересылка данных */}
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <h5 className="text-lg font-semibold text-gray-900 font-heading mb-3 flex items-center">
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ДАННЫЕ</span>
+                  Пересылка данных
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">PUSH &lt;value&gt;</code>
+                    <span className="text-gray-600">поместить значение на стек</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">POP</code>
+                    <span className="text-gray-600">извлечь значение со стека</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">DUP</code>
+                    <span className="text-gray-600">дублировать верхний элемент</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <code className="font-mono text-blue-600">SWAP</code>
+                    <span className="text-gray-600">поменять местами два элемента</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Арифметические операции */}
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <h5 className="text-lg font-semibold text-gray-900 font-heading mb-3 flex items-center">
+                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">МАТЕМАТИКА</span>
+                  Арифметические операции
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">ADD</code>
+                    <span className="text-gray-600">сложение</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">SUB</code>
+                    <span className="text-gray-600">вычитание</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">MUL</code>
+                    <span className="text-gray-600">умножение</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">DIV</code>
+                    <span className="text-gray-600">деление</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">INC</code>
+                    <span className="text-gray-600">инкремент</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <code className="font-mono text-blue-600">DEC</code>
+                    <span className="text-gray-600">декремент</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Работа с памятью */}
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <h5 className="text-lg font-semibold text-gray-900 font-heading mb-3 flex items-center">
+                  <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ПАМЯТЬ</span>
+                  Работа с памятью
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">LOAD</code>
+                    <span className="text-gray-600">загрузить из памяти</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <code className="font-mono text-blue-600">STORE</code>
+                    <span className="text-gray-600">сохранить в память</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Управление выполнением */}
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <h5 className="text-lg font-semibold text-gray-900 font-heading mb-3 flex items-center">
+                  <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">УПРАВЛЕНИЕ</span>
+                  Управление выполнением
+                </h5>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">JMP &lt;label&gt;</code>
+                    <span className="text-gray-600">безусловный переход</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">JZ &lt;label&gt;</code>
+                    <span className="text-gray-600">переход если ноль</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-gray-100">
+                    <code className="font-mono text-blue-600">JNZ &lt;label&gt;</code>
+                    <span className="text-gray-600">переход если не ноль</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <code className="font-mono text-blue-600">HALT</code>
+                    <span className="text-gray-600">остановка выполнения</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Примеры использования */}
+            <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
+              <h5 className="text-lg font-semibold text-gray-900 font-heading mb-4">
+                💡 Примеры использования
+              </h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h6 className="font-medium text-gray-800 mb-2">Простое сложение:</h6>
+                  <pre className="bg-gray-800 text-green-400 p-3 rounded text-xs font-mono overflow-x-auto">
+                    {`PUSH 5
+PUSH 3
+ADD
+HALT`}
+                  </pre>
+                </div>
+                <div>
+                  <h6 className="font-medium text-gray-800 mb-2">Условный переход:</h6>
+                  <pre className="bg-gray-800 text-green-400 p-3 rounded text-xs font-mono overflow-x-auto">
+                    {`PUSH 0
+JZ end
+PUSH 1
+end:
+HALT`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+
+            {/* Архитектура процессора */}
+            <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
+              <h5 className="text-lg font-semibold text-blue-900 font-heading mb-4">
+                🏗️ Архитектура процессора
+              </h5>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="bg-blue-100 rounded-lg p-3 mb-2">
+                    <div className="text-blue-800 font-medium">Стековая архитектура</div>
+                  </div>
+                  <p className="text-blue-700">Все операции выполняются над данными на стеке</p>
+                </div>
+                <div className="text-center">
+                  <div className="bg-blue-100 rounded-lg p-3 mb-2">
+                    <div className="text-blue-800 font-medium">Гарвардская архитектура</div>
+                  </div>
+                  <p className="text-blue-700">Раздельная память для команд и данных</p>
+                </div>
+                <div className="text-center">
+                  <div className="bg-blue-100 rounded-lg p-3 mb-2">
+                    <div className="text-blue-800 font-medium">RISC-подобная</div>
+                  </div>
+                  <p className="text-blue-700">Простой набор инструкций</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

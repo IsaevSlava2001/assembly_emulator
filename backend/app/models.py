@@ -11,10 +11,10 @@ class ProcessorState(BaseModel):
     """Состояние процессора"""
     program_counter: int = 0
     stack: List[int] = []
-    flags: Dict[FlagType, bool] = {
-        FlagType.ZERO: False,
-        FlagType.CARRY: False,
-        FlagType.OVERFLOW: False
+    flags: Dict[str, bool] = {
+        "zero": False,
+        "carry": False,
+        "overflow": False
     }
     current_command: str = ""
     is_halted: bool = False

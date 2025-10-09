@@ -4,14 +4,14 @@ import { apiService } from '../services/api';
 
 const initialState: EmulatorState = {
     processor: {
-        stack: [],
         program_counter: 0,
-        current_command: '',
+        stack: [],
         flags: {
             zero: false,
             carry: false,
             overflow: false,
         },
+        current_command: '',
         is_halted: false,
     },
     memory: {
@@ -47,11 +47,11 @@ export const useEmulatorStore = create<{
     error: null,
     current_task: null,
 
-    setSourceCode: (code) => set((state) => ({ 
-        state: { ...state.state, source_code: code } 
+    setSourceCode: (code) => set((state) => ({
+        state: { ...state.state, source_code: code }
     })),
 
-    setCurrentTask: (taskId) => set((state) => ({ 
+    setCurrentTask: (taskId) => set((state) => ({
         state: { ...state.state, current_task: taskId },
         current_task: taskId
     })),
@@ -66,9 +66,9 @@ export const useEmulatorStore = create<{
             const state = await apiService.getState();
             set({ state, loading: false });
         } catch (error) {
-            set({ 
+            set({
                 error: error instanceof Error ? error.message : 'Ошибка загрузки состояния',
-                loading: false 
+                loading: false
             });
         }
     },
@@ -79,9 +79,9 @@ export const useEmulatorStore = create<{
             const tasks = await apiService.getTasks();
             set({ tasks, loading: false });
         } catch (error) {
-            set({ 
+            set({
                 error: error instanceof Error ? error.message : 'Ошибка загрузки задач',
-                loading: false 
+                loading: false
             });
         }
     },
@@ -91,21 +91,21 @@ export const useEmulatorStore = create<{
             set({ loading: true, error: null });
             const result = await apiService.compileCode(code);
             if (result.success) {
-                set((state) => ({ 
-                    state: { 
-                        ...state.state, 
+                set((state) => ({
+                    state: {
+                        ...state.state,
                         source_code: code,
-                        machine_code: result.machine_code 
+                        machine_code: result.machine_code
                     },
-                    loading: false 
+                    loading: false
                 }));
             } else {
                 set({ error: 'Ошибка компиляции', loading: false });
             }
         } catch (error) {
-            set({ 
+            set({
                 error: error instanceof Error ? error.message : 'Ошибка компиляции',
-                loading: false 
+                loading: false
             });
         }
     },
@@ -120,9 +120,9 @@ export const useEmulatorStore = create<{
                 set({ error: 'Ошибка выполнения', loading: false });
             }
         } catch (error) {
-            set({ 
+            set({
                 error: error instanceof Error ? error.message : 'Ошибка выполнения',
-                loading: false 
+                loading: false
             });
         }
     },
@@ -133,13 +133,14 @@ export const useEmulatorStore = create<{
             const result = await apiService.executeStep();
             if (result.success) {
                 set({ state: result.state, loading: false });
+                console.log('Шаг выполнен:', result.state);
             } else {
                 set({ error: 'Ошибка выполнения шага', loading: false });
             }
         } catch (error) {
-            set({ 
+            set({
                 error: error instanceof Error ? error.message : 'Ошибка выполнения шага',
-                loading: false 
+                loading: false
             });
         }
     },
@@ -154,9 +155,9 @@ export const useEmulatorStore = create<{
                 set({ error: 'Ошибка сброса', loading: false });
             }
         } catch (error) {
-            set({ 
+            set({
                 error: error instanceof Error ? error.message : 'Ошибка сброса',
-                loading: false 
+                loading: false
             });
         }
     },

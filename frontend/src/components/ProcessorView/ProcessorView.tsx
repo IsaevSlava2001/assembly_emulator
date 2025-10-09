@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Badge } from 'flowbite-react';
 import { useEmulatorStore } from '../../store/emulatorStore';
 import './ProcessorView.css';
@@ -6,6 +6,19 @@ import './ProcessorView.css';
 export const ProcessorView: React.FC = () => {
   const { state } = useEmulatorStore();
   const { processor } = state;
+  const [previousCounter, setPreviousCounter] = useState(processor.program_counter);
+  const [animateCounter, setAnimateCounter] = useState(false);
+
+  // Отслеживаем изменения счетчика команд для анимации
+  useEffect(() => {
+    if (processor.program_counter !== previousCounter) {
+      setAnimateCounter(true);
+      setPreviousCounter(processor.program_counter);
+
+      // Сбрасываем анимацию через 600ms
+      setTimeout(() => setAnimateCounter(false), 600);
+    }
+  }, [processor.program_counter, previousCounter]);
 
   return (
     <Card className="glass-card p-6">
@@ -20,8 +33,14 @@ export const ProcessorView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">Счётчик команд</label>
-            <div className="text-2xl font-mono font-bold text-primary-600 bg-white rounded-lg p-3 text-center">
+            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">
+              Счётчик команд
+              {animateCounter && (
+                <span className="ml-2 text-xs text-blue-600 animate-pulse">↑ увеличивается</span>
+              )}
+            </label>
+            <div className={`text-2xl font-mono font-bold text-primary-600 bg-white rounded-lg p-3 text-center transition-all duration-300 ${animateCounter ? 'animate-counter-increase' : ''
+              }`}>
               {processor.program_counter}
             </div>
           </div>
@@ -72,10 +91,27 @@ export const ProcessorView: React.FC = () => {
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">Стек</label>
-            <div className="text-lg font-mono text-gray-800 bg-white rounded-lg p-3 min-h-[3rem] flex items-center">
+            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">
+              Стек
+              {processor.stack.length > 0 && (
+                <span className="ml-2 text-xs text-green-600 animate-pulse">
+                  {processor.stack.length} элементов
+                </span>
+              )}
+            </label>
+            <div className="text-lg font-mono text-gray-800 bg-white rounded-lg p-3 min-h-[3rem] flex items-center animate-slide-in-up">
               <span className="text-gray-400">[</span>
-              <span className="mx-2">{processor.stack.join(', ')}</span>
+              <span className="mx-2">
+                {processor.stack.length > 0 ? (
+                  processor.stack.map((item, index) => (
+                    <span key={index} className="text-green-600 font-bold">
+                      {item}{index < processor.stack.length - 1 ? ', ' : ''}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-400">пуст</span>
+                )}
+              </span>
               <span className="text-gray-400">]</span>
             </div>
           </div>

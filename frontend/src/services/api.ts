@@ -53,7 +53,7 @@ class ApiService {
   }
 
   // Выполнить один шаг
-  async executeStep(): Promise<{ success: boolean; state: EmulatorState }> {
+  async executeStep(): Promise<{ success: boolean; state: EmulatorState; continues?: boolean }> {
     return this.request('/api/step', {
       method: 'POST',
     });
