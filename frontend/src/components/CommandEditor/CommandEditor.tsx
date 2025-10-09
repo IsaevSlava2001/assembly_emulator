@@ -399,6 +399,79 @@ HALT`}
                 </div>
               </div>
             </div>
+
+            {/* Как работает выполнение программы */}
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200 p-6">
+              <h5 className="text-xl font-bold text-purple-900 font-heading mb-4 flex items-center">
+                <span className="mr-2">🎯</span>
+                Как работает выполнение программы
+              </h5>
+              
+              <div className="space-y-4">
+                {/* Шаг 1 */}
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <h6 className="font-bold text-purple-800 mb-2">1️⃣ Компиляция кода</h6>
+                  <p className="text-sm text-gray-700 mb-2">
+                    Нажмите <strong>"Компилировать"</strong> — код преобразуется в машинные инструкции и загружается в процессор.
+                  </p>
+                  <div className="bg-green-50 border-l-4 border-green-500 p-2 text-sm">
+                    <strong className="text-green-800">✅ Ошибок нет</strong> — код готов к выполнению!
+                  </div>
+                </div>
+
+                {/* Шаг 2 */}
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <h6 className="font-bold text-purple-800 mb-2">2️⃣ Пошаговое выполнение</h6>
+                  <p className="text-sm text-gray-700 mb-2">
+                    Нажимайте <strong>"Следующий шаг"</strong> для выполнения одной команды:
+                  </p>
+                  <ul className="text-sm text-gray-700 space-y-1 ml-4">
+                    <li>📊 <strong>Счётчик команд</strong> увеличивается на 1</li>
+                    <li>🔧 <strong>Текущая команда</strong> показывает, что выполняется</li>
+                    <li>📚 <strong>Стек</strong> обновляется с новыми данными</li>
+                    <li>🚩 <strong>Флаги</strong> меняются в зависимости от результата</li>
+                  </ul>
+                </div>
+
+                {/* Шаг 3 */}
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <h6 className="font-bold text-purple-800 mb-2">3️⃣ Визуализация в блоке "Память"</h6>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div className="bg-blue-50 p-3 rounded">
+                      <strong className="text-blue-800">Память по времени:</strong>
+                      <p className="text-gray-700 mt-1">
+                        История каждого шага выполнения с состоянием стека и счётчика команд
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 p-3 rounded">
+                      <strong className="text-purple-800">Состояние памяти:</strong>
+                      <p className="text-gray-700 mt-1">
+                        Текущие данные в памяти с адресами и значениями ячеек
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Пример */}
+                <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 border border-orange-200">
+                  <h6 className="font-bold text-orange-800 mb-2">📝 Пример: PUSH 15, PUSH 3, ADD</h6>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-blue-500 text-white px-2 py-1 rounded font-mono text-xs">Шаг 1</span>
+                      <span className="text-gray-700">PUSH 15 → Стек: <code className="text-green-600 font-bold">[15]</code></span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-blue-500 text-white px-2 py-1 rounded font-mono text-xs">Шаг 2</span>
+                      <span className="text-gray-700">PUSH 3 → Стек: <code className="text-green-600 font-bold">[15, 3]</code></span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-blue-500 text-white px-2 py-1 rounded font-mono text-xs">Шаг 3</span>
+                      <span className="text-gray-700">ADD → Стек: <code className="text-green-600 font-bold">[18]</code> (15+3)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

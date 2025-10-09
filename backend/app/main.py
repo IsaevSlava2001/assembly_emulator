@@ -72,11 +72,16 @@ async def compile_code(request: CompileRequest):
         raise HTTPException(status_code=500, detail="Assembler or Processor not initialized")
     
     try:
+        print(request.source_code)
         machine_code, labels = assembler.assemble(request.source_code)
+<<<<<<< HEAD
         
         # Загружаем программу в процессор для пошагового выполнения
         processor.load_program(machine_code, request.source_code)
         
+=======
+        print(machine_code)
+>>>>>>> 19c36efab27349de911898559e13fdd96b5a669d
         return {
             "success": True,
             "machine_code": machine_code,
