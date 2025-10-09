@@ -74,14 +74,11 @@ async def compile_code(request: CompileRequest):
     try:
         print(request.source_code)
         machine_code, labels = assembler.assemble(request.source_code)
-<<<<<<< HEAD
         
         # Загружаем программу в процессор для пошагового выполнения
         processor.load_program(machine_code, request.source_code)
         
-=======
         print(machine_code)
->>>>>>> 19c36efab27349de911898559e13fdd96b5a669d
         return {
             "success": True,
             "machine_code": machine_code,
@@ -132,6 +129,9 @@ async def execute_code(request: ExecuteRequest):
             }
         else:
             # Выполнение пользовательского кода
+            if not hasattr(request, 'source_code') or not request.source_code:
+                raise HTTPException(status_code=400, detail="Не указан исходный код для выполнения")
+            
             machine_code, _ = assembler.assemble(request.source_code)
             
             for instruction_line in machine_code:
@@ -216,8 +216,8 @@ async def get_task_program(task_id: int):
     
     return {
         "task_id": task_id,
-        "program": task["program"],
-        "test_data": task["test_data"]
+        "program": task.get("program", ""),
+        "test_data": task.get("test_data", [])
     }
 
 if __name__ == "__main__":
