@@ -30,13 +30,13 @@ export const MemoryView: React.FC = () => {
     value: value,
     type: 'stack'
   }));
-  
+
   const ramData = memory.ram.map((value, index) => ({
     address: index.toString(16).padStart(4, '0'),
     value: value,
     type: 'ram'
   }));
-  
+
   // Объединяем стек и RAM для отображения
   const allMemoryData = [...stackData, ...ramData];
 
@@ -131,7 +131,7 @@ export const MemoryView: React.FC = () => {
 
     // Обновляем предыдущие значения
     setPreviousRamValues([...memory.ram]);
-  }, [memory.ram, previousRamValues]);
+  }, [memory.ram]);
 
   return (
     <Card title="Память" className="memory-card">
@@ -225,8 +225,8 @@ export const MemoryView: React.FC = () => {
               header="Адрес"
               style={{ width: '80px' }}
               body={(rowData) => {
-                const addressIndex = rowData.type === 'stack' ? 
-                  parseInt(rowData.address.replace('STK', '')) : 
+                const addressIndex = rowData.type === 'stack' ?
+                  parseInt(rowData.address.replace('STK', '')) :
                   parseInt(rowData.address, 16);
                 const isChanged = changedAddresses.has(addressIndex);
                 const isHighlighted = highlightedAddresses.has(addressIndex);

@@ -48,6 +48,46 @@ export const CommandEditor: React.FC = () => {
     }
   };
 
+  const handleLoadTaskExample = (taskId: number) => {
+    const examples = {
+      1: `PUSH 5          
+PUSH 0          
+PUSH 0 
+PUSH 10         
+ADD
+PUSH 20
+ADD
+PUSH 30
+ADD
+PUSH 40
+ADD
+PUSH 50
+ADD
+PUSH 0
+STORE
+HALT`,
+
+      2: `PUSH 0
+PUSH 2
+PUSH 1
+MUL
+ADD
+PUSH 3
+PUSH 2
+MUL
+ADD
+PUSH 4
+PUSH 3
+MUL
+ADD
+PUSH 0
+STORE
+HALT`
+    };
+
+    setExampleCode(examples[taskId as keyof typeof examples] || '');
+  };
+
   const handleInsertExample = () => {
     setAssemblyCode(exampleCode);
     setSourceCode(exampleCode);
@@ -118,7 +158,7 @@ export const CommandEditor: React.FC = () => {
                 <p className="text-red-800 text-sm">{error}</p>
               </div>
             )}
-            
+
             {compileSuccess && !error && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 animate-fade-in">
                 <div className="flex items-center">
@@ -169,7 +209,7 @@ export const CommandEditor: React.FC = () => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-lg font-semibold text-blue-900 font-heading">
-                  Пример кода для задачи
+                  Примеры кода для задач
                 </h4>
                 <Button
                   color="info"
@@ -192,12 +232,42 @@ export const CommandEditor: React.FC = () => {
                 </Button>
               </div>
               <p className="text-blue-800 text-sm mb-4 font-body">
-                {current_task
-                  ? 'Выберите задачу и нажмите "Загрузить пример" для получения готового кода'
-                  : 'Сначала выберите задачу в панели "Задания"'
-                }
+                Готовые примеры кода для задач 1 и 2. Скопируйте и вставьте в редактор.
               </p>
-            </div>
+
+              {/* Кнопки для выбора примера */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <Button
+    style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+    size="sm"
+    onClick={() => handleLoadTaskExample(1)}
+    className="flex items-center justify-center space-x-2 h-12 text-white"
+  >
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    </svg>
+    <div className="text-left">
+      <div className="font-semibold">Задача 1</div>
+      <div className="text-xs opacity-90">Сумма массива</div>
+    </div>
+  </Button>
+
+               <Button
+  style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+  size="sm"
+  onClick={() => handleLoadTaskExample(2)}
+  className="flex items-center justify-center space-x-2 h-12 text-white"
+>
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+  </svg>
+  <div className="text-left">
+    <div className="font-semibold">Задача 2</div>
+    <div className="text-xs opacity-90">Свертка массивов</div>
+  </div>
+</Button>
+</div>
+</div>
 
             {exampleCode && (
               <div className="space-y-4">
@@ -413,7 +483,7 @@ HALT`}
                 <span className="mr-2">🎯</span>
                 Как работает выполнение программы
               </h5>
-              
+
               <div className="space-y-4">
                 {/* Шаг 1 */}
                 <div className="bg-white rounded-lg p-4 shadow-sm">

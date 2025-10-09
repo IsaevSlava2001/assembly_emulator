@@ -18,7 +18,7 @@ export const ProcessorView: React.FC = () => {
       // Сбрасываем анимацию через 600ms
       setTimeout(() => setAnimateCounter(false), 600);
     }
-  }, [processor.program_counter, previousCounter]);
+  }, [processor.program_counter]);
 
   return (
     <Card className="glass-card p-6">
