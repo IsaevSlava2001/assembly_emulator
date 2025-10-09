@@ -15,6 +15,7 @@ export const MemoryView: React.FC = () => {
   const [previousRamValues, setPreviousRamValues] = useState<number[]>([]);
   const [changedAddresses, setChangedAddresses] = useState<Set<number>>(new Set());
   const [highlightedAddresses, setHighlightedAddresses] = useState<Set<number>>(new Set());
+  const [memoryChanges, setMemoryChanges] = useState<Map<number, { oldValue: number, newValue: number }>>(new Map());
 
   const historyData = memory.history.map((entry, index) => ({
     step: index + 1,
@@ -23,23 +24,39 @@ export const MemoryView: React.FC = () => {
     programCounter: entry.programCounter || 0,
   }));
 
-  const allRamData = memory.ram.map((value, index) => ({
+  // Создаем данные для отображения: сначала стек, потом RAM
+  const stackData = state.processor.stack.map((value, index) => ({
+    address: `STK${index}`,
+    value: value,
+    type: 'stack'
+  }));
+  
+  const ramData = memory.ram.map((value, index) => ({
     address: index.toString(16).padStart(4, '0'),
     value: value,
+    type: 'ram'
   }));
+  
+  // Объединяем стек и RAM для отображения
+  const allMemoryData = [...stackData, ...ramData];
 
-  // Показываем только видимые элементы памяти
-  const ramData = allRamData.slice(0, visibleMemoryItems);
+  // Показываем все ячейки памяти, но выделяем используемые
+  const displayData = allMemoryData.slice(0, visibleMemoryItems);
 
   const handleLoadMore = () => {
-    setVisibleMemoryItems(prev => Math.min(prev + 5, allRamData.length));
+    setVisibleMemoryItems(prev => Math.min(prev + 5, allMemoryData.length));
   };
 
   const handleReset = () => {
     setVisibleMemoryItems(5);
   };
 
-  const hasMoreItems = visibleMemoryItems < allRamData.length;
+  const hasMoreItems = visibleMemoryItems < allMemoryData.length;
+
+  // Подсчитываем количество используемых ячеек
+  const usedStackCells = state.processor.stack.length;
+  const usedRamCells = memory.ram.filter(value => value !== 0).length;
+  const totalMemoryCells = allMemoryData.length;
 
   // Сбрасываем видимые элементы при изменении состояния памяти
   useEffect(() => {
@@ -52,6 +69,7 @@ export const MemoryView: React.FC = () => {
       setChangedAddresses(new Set());
       setHighlightedAddresses(new Set());
       setPreviousRamValues([]);
+      setMemoryChanges(new Map());
     }
   }, [memory.ram]);
 
@@ -76,27 +94,38 @@ export const MemoryView: React.FC = () => {
     if (previousRamValues.length > 0 && memory.ram.length > 0) {
       const changed = new Set<number>();
       const highlighted = new Set<number>();
+      const changes = new Map<number, { oldValue: number, newValue: number }>();
 
       // Сравниваем текущие значения с предыдущими
       for (let i = 0; i < Math.min(previousRamValues.length, memory.ram.length); i++) {
         if (previousRamValues[i] !== memory.ram[i]) {
           changed.add(i);
           highlighted.add(i);
+          changes.set(i, {
+            oldValue: previousRamValues[i],
+            newValue: memory.ram[i]
+          });
 
-          // Убираем подсветку через 2 секунды
+          // Убираем подсветку через 3 секунды
           setTimeout(() => {
             setHighlightedAddresses(prev => {
               const newSet = new Set(prev);
               newSet.delete(i);
               return newSet;
             });
-          }, 2000);
+          }, 3000);
         }
       }
 
       if (changed.size > 0) {
         setChangedAddresses(changed);
         setHighlightedAddresses(highlighted);
+        setMemoryChanges(changes);
+
+        // Очищаем изменения через 5 секунд
+        setTimeout(() => {
+          setMemoryChanges(new Map());
+        }, 5000);
       }
     }
 
@@ -160,9 +189,12 @@ export const MemoryView: React.FC = () => {
           <h4 className="flex items-center">
             <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ПАМЯТЬ</span>
             Состояние памяти
-            {memory.ram.length > 0 && (
+            {totalMemoryCells > 0 && (
               <span className="ml-2 bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
-                {memory.ram.length} ячеек
+                {usedStackCells > 0 ? `${usedStackCells} стек` : ''}
+                {usedStackCells > 0 && usedRamCells > 0 ? ' + ' : ''}
+                {usedRamCells > 0 ? `${usedRamCells} RAM` : ''}
+                {usedStackCells === 0 && usedRamCells === 0 ? `${totalMemoryCells} ячеек` : ''}
               </span>
             )}
             {changedAddresses.size > 0 && (
@@ -170,9 +202,20 @@ export const MemoryView: React.FC = () => {
                 {changedAddresses.size} изменений
               </span>
             )}
+            {memoryChanges.size > 0 && (
+              <div className="ml-2 text-xs text-gray-600">
+                {Array.from(memoryChanges.entries()).map(([address, change]) => (
+                  <div key={address} className="flex items-center space-x-1">
+                    <span className="font-mono">0x{address.toString(16).padStart(4, '0')}:</span>
+                    <span className="text-gray-500">{change.oldValue} →</span>
+                    <span className="text-green-600 font-bold">{change.newValue}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </h4>
           <DataTable
-            value={ramData}
+            value={displayData}
             size="small"
             className={`ram-table ${memory.ram.length > previousRamLength ? 'animate-slide-in-up' : ''}`}
             emptyMessage="Память пуста"
@@ -182,19 +225,30 @@ export const MemoryView: React.FC = () => {
               header="Адрес"
               style={{ width: '80px' }}
               body={(rowData) => {
-                const addressIndex = parseInt(rowData.address, 16);
+                const addressIndex = rowData.type === 'stack' ? 
+                  parseInt(rowData.address.replace('STK', '')) : 
+                  parseInt(rowData.address, 16);
                 const isChanged = changedAddresses.has(addressIndex);
                 const isHighlighted = highlightedAddresses.has(addressIndex);
 
                 return (
-                  <span className={`font-mono font-bold transition-all duration-300 ${isHighlighted
+                  <div className="flex items-center space-x-2">
+                    <span className={`font-mono font-bold transition-all duration-300 ${isHighlighted
                       ? 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded animate-pulse'
                       : isChanged
                         ? 'text-orange-600 bg-orange-50 px-1 py-0.5 rounded'
-                        : 'text-blue-600'
-                    }`}>
-                    0x{rowData.address}
-                  </span>
+                        : rowData.type === 'stack'
+                          ? 'text-blue-600'
+                          : 'text-gray-600'
+                      }`}>
+                      {rowData.type === 'stack' ? rowData.address : `0x${rowData.address}`}
+                    </span>
+                    {rowData.type === 'stack' && (
+                      <span className="text-xs text-blue-500 bg-blue-50 px-1 py-0.5 rounded">
+                        СТЕК
+                      </span>
+                    )}
+                  </div>
                 );
               }}
             />
@@ -206,23 +260,29 @@ export const MemoryView: React.FC = () => {
                 const isChanged = changedAddresses.has(addressIndex);
                 const isHighlighted = highlightedAddresses.has(addressIndex);
                 const hasValue = rowData.value !== 0;
+                const change = memoryChanges.get(addressIndex);
 
                 return (
                   <div className="flex items-center space-x-2">
                     <span className={`font-mono font-bold transition-all duration-300 ${isHighlighted
-                        ? 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded animate-pulse'
-                        : isChanged
-                          ? 'text-orange-600 bg-orange-50 px-1 py-0.5 rounded'
-                          : hasValue
-                            ? 'text-green-600'
-                            : 'text-gray-400'
+                      ? 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded animate-pulse'
+                      : isChanged
+                        ? 'text-orange-600 bg-orange-50 px-1 py-0.5 rounded'
+                        : hasValue
+                          ? 'text-green-600'
+                          : 'text-gray-400'
                       }`}>
                       {rowData.value}
                     </span>
-                    {isChanged && (
-                      <span className="text-xs text-orange-500 animate-bounce">
-                        ↑ изменилось
-                      </span>
+                    {change && (
+                      <div className="flex items-center space-x-1">
+                        <span className="text-xs text-gray-500">
+                          {change.oldValue} →
+                        </span>
+                        <span className="text-xs text-orange-500 animate-bounce">
+                          ↑ изменилось
+                        </span>
+                      </div>
                     )}
                   </div>
                 );
@@ -257,9 +317,19 @@ export const MemoryView: React.FC = () => {
               </Button>
             )}
           </div>
-          {allRamData.length > 0 && (
+          {allMemoryData.length > 0 && (
             <div className="mt-2 text-center text-sm text-gray-500">
-              Показано {visibleMemoryItems} из {allRamData.length} позиций
+              Показано {visibleMemoryItems} из {allMemoryData.length} позиций
+              {usedStackCells > 0 && (
+                <span className="ml-2 text-blue-600">
+                  ({usedStackCells} в стеке)
+                </span>
+              )}
+              {usedRamCells > 0 && (
+                <span className="ml-2 text-green-600">
+                  ({usedRamCells} в RAM)
+                </span>
+              )}
             </div>
           )}
         </div>
