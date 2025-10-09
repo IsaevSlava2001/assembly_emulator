@@ -95,7 +95,7 @@ async def execute_code(request: ExecuteRequest):
         raise HTTPException(status_code=500, detail="Processor not initialized")
     
     try:
-        if request.task_id:
+        if request.task_id and request.task_id > 0:
             # Выполнение предустановленной задачи
             task = task_manager.get_task(request.task_id)
             if not task:
@@ -129,7 +129,7 @@ async def execute_code(request: ExecuteRequest):
             }
         else:
             # Выполнение пользовательского кода
-            if not hasattr(request, 'source_code') or not request.source_code:
+            if not request.source_code:
                 raise HTTPException(status_code=400, detail="Не указан исходный код для выполнения")
             
             machine_code, _ = assembler.assemble(request.source_code)
@@ -171,7 +171,7 @@ async def execute_step():
         raise HTTPException(status_code=400, detail=f"Ошибка выполнения шага: {str(e)}")
 
 @app.post("/api/reset")
-async def reset_processor(request: ResetRequest):
+async def reset_processor():
     """Сбросить процессор"""
     if not processor:
         raise HTTPException(status_code=500, detail="Processor not initialized")

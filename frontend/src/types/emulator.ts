@@ -46,8 +46,9 @@ export interface CompileRequest {
 }
 
 export interface ExecuteRequest {
-    task_id?: number;
+    task_id?: number | null;
     step_by_step?: boolean;
+    source_code?: string;
 }
 
 export interface TaskInfo {

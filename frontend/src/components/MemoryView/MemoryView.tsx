@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -12,6 +12,9 @@ export const MemoryView: React.FC = () => {
   const [visibleMemoryItems, setVisibleMemoryItems] = useState(5);
   const [previousHistoryLength, setPreviousHistoryLength] = useState(0);
   const [previousRamLength, setPreviousRamLength] = useState(0);
+  const [previousRamValues, setPreviousRamValues] = useState<number[]>([]);
+  const [changedAddresses, setChangedAddresses] = useState<Set<number>>(new Set());
+  const [highlightedAddresses, setHighlightedAddresses] = useState<Set<number>>(new Set());
 
   const historyData = memory.history.map((entry, index) => ({
     step: index + 1,
@@ -43,6 +46,15 @@ export const MemoryView: React.FC = () => {
     setVisibleMemoryItems(5);
   }, [memory.ram]);
 
+  // Сбрасываем отслеживание изменений при сбросе процессора
+  useEffect(() => {
+    if (memory.ram.every(value => value === 0)) {
+      setChangedAddresses(new Set());
+      setHighlightedAddresses(new Set());
+      setPreviousRamValues([]);
+    }
+  }, [memory.ram]);
+
   // Отслеживаем изменения в истории для анимации
   useEffect(() => {
     if (memory.history.length > previousHistoryLength) {
@@ -58,6 +70,39 @@ export const MemoryView: React.FC = () => {
       setPreviousRamLength(memory.ram.length);
     }
   }, [memory.ram.length, previousRamLength]);
+
+  // Отслеживаем изменения значений в памяти
+  useEffect(() => {
+    if (previousRamValues.length > 0 && memory.ram.length > 0) {
+      const changed = new Set<number>();
+      const highlighted = new Set<number>();
+
+      // Сравниваем текущие значения с предыдущими
+      for (let i = 0; i < Math.min(previousRamValues.length, memory.ram.length); i++) {
+        if (previousRamValues[i] !== memory.ram[i]) {
+          changed.add(i);
+          highlighted.add(i);
+
+          // Убираем подсветку через 2 секунды
+          setTimeout(() => {
+            setHighlightedAddresses(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(i);
+              return newSet;
+            });
+          }, 2000);
+        }
+      }
+
+      if (changed.size > 0) {
+        setChangedAddresses(changed);
+        setHighlightedAddresses(highlighted);
+      }
+    }
+
+    // Обновляем предыдущие значения
+    setPreviousRamValues([...memory.ram]);
+  }, [memory.ram, previousRamValues]);
 
   return (
     <Card title="Память" className="memory-card">
@@ -78,31 +123,31 @@ export const MemoryView: React.FC = () => {
             className={`history-table ${memory.history.length > previousHistoryLength ? 'animate-slide-in-up' : ''}`}
             emptyMessage="Нет данных"
           >
-            <Column 
-              field="step" 
-              header="Шаг" 
-              style={{ width: '60px' }} 
+            <Column
+              field="step"
+              header="Шаг"
+              style={{ width: '60px' }}
               body={(rowData) => (
                 <span className="font-mono text-blue-600 font-bold">{rowData.step}</span>
               )}
             />
-            <Column 
-              field="command" 
-              header="Команда" 
+            <Column
+              field="command"
+              header="Команда"
               body={(rowData) => (
                 <span className="font-mono text-gray-800">{rowData.command}</span>
               )}
             />
-            <Column 
-              field="stack" 
-              header="Стек" 
+            <Column
+              field="stack"
+              header="Стек"
               body={(rowData) => (
                 <span className="font-mono text-green-600">{rowData.stack}</span>
               )}
             />
-            <Column 
-              field="programCounter" 
-              header="Счётчик" 
+            <Column
+              field="programCounter"
+              header="Счётчик"
               style={{ width: '80px' }}
               body={(rowData) => (
                 <span className="font-mono text-purple-600 font-bold">{rowData.programCounter}</span>
@@ -120,6 +165,11 @@ export const MemoryView: React.FC = () => {
                 {memory.ram.length} ячеек
               </span>
             )}
+            {changedAddresses.size > 0 && (
+              <span className="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
+                {changedAddresses.size} изменений
+              </span>
+            )}
           </h4>
           <DataTable
             value={ramData}
@@ -127,22 +177,56 @@ export const MemoryView: React.FC = () => {
             className={`ram-table ${memory.ram.length > previousRamLength ? 'animate-slide-in-up' : ''}`}
             emptyMessage="Память пуста"
           >
-            <Column 
-              field="address" 
-              header="Адрес" 
+            <Column
+              field="address"
+              header="Адрес"
               style={{ width: '80px' }}
-              body={(rowData) => (
-                <span className="font-mono text-blue-600 font-bold">0x{rowData.address}</span>
-              )}
+              body={(rowData) => {
+                const addressIndex = parseInt(rowData.address, 16);
+                const isChanged = changedAddresses.has(addressIndex);
+                const isHighlighted = highlightedAddresses.has(addressIndex);
+
+                return (
+                  <span className={`font-mono font-bold transition-all duration-300 ${isHighlighted
+                      ? 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded animate-pulse'
+                      : isChanged
+                        ? 'text-orange-600 bg-orange-50 px-1 py-0.5 rounded'
+                        : 'text-blue-600'
+                    }`}>
+                    0x{rowData.address}
+                  </span>
+                );
+              }}
             />
-            <Column 
-              field="value" 
+            <Column
+              field="value"
               header="Значение"
-              body={(rowData) => (
-                <span className={`font-mono font-bold ${rowData.value !== 0 ? 'text-green-600' : 'text-gray-400'}`}>
-                  {rowData.value}
-                </span>
-              )}
+              body={(rowData) => {
+                const addressIndex = parseInt(rowData.address, 16);
+                const isChanged = changedAddresses.has(addressIndex);
+                const isHighlighted = highlightedAddresses.has(addressIndex);
+                const hasValue = rowData.value !== 0;
+
+                return (
+                  <div className="flex items-center space-x-2">
+                    <span className={`font-mono font-bold transition-all duration-300 ${isHighlighted
+                        ? 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded animate-pulse'
+                        : isChanged
+                          ? 'text-orange-600 bg-orange-50 px-1 py-0.5 rounded'
+                          : hasValue
+                            ? 'text-green-600'
+                            : 'text-gray-400'
+                      }`}>
+                      {rowData.value}
+                    </span>
+                    {isChanged && (
+                      <span className="text-xs text-orange-500 animate-bounce">
+                        ↑ изменилось
+                      </span>
+                    )}
+                  </div>
+                );
+              }}
             />
           </DataTable>
           <div className="mt-3 flex justify-center space-x-2">

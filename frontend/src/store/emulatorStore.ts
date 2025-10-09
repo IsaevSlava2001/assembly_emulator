@@ -36,6 +36,7 @@ export const useEmulatorStore = create<{
     compileCode: (code: string) => Promise<void>;
     executeCode: (taskId?: number) => Promise<void>;
     executeStep: () => Promise<void>;
+    executeRemaining: () => Promise<void>;
     reset: () => Promise<void>;
     setState: (newState: EmulatorState) => void;
     setLoading: (loading: boolean) => void;
@@ -113,7 +114,13 @@ export const useEmulatorStore = create<{
     executeCode: async (taskId?: number) => {
         try {
             set({ loading: true, error: null });
-            const result = await apiService.executeCode({ task_id: taskId });
+            
+            // Если taskId не указан, используем текущий исходный код
+            const request = taskId 
+                ? { task_id: taskId, step_by_step: false }
+                : { task_id: null, step_by_step: false, source_code: state.source_code };
+            
+            const result = await apiService.executeCode(request);
             if (result.success) {
                 set({ state: result.state, loading: false });
             } else {
@@ -145,12 +152,71 @@ export const useEmulatorStore = create<{
         }
     },
 
+    executeRemaining: async () => {
+        try {
+            set({ loading: true, error: null });
+            console.log('Выполняем оставшиеся команды...');
+            
+            let stepCount = 0;
+            const maxSteps = 1000; // Защита от бесконечного цикла
+            let lastState = null;
+            
+            while (stepCount < maxSteps) {
+                const result = await apiService.executeStep();
+                
+                if (!result.success) {
+                    set({ error: 'Ошибка выполнения команды', loading: false });
+                    return;
+                }
+                
+                stepCount++;
+                lastState = result.state;
+                console.log(`Шаг ${stepCount}: Счетчик ${result.state.processor.program_counter}, Стек ${result.state.processor.stack}`);
+                
+                // Если программа остановлена, выходим из цикла
+                if (result.state.processor.is_halted) {
+                    console.log('Программа остановлена');
+                    break;
+                }
+                
+                // Если больше нет команд для выполнения
+                if (!result.continues) {
+                    console.log('Нет больше команд для выполнения');
+                    break;
+                }
+                
+                // Быстрое выполнение без задержки для лучшей производительности
+                // await new Promise(resolve => setTimeout(resolve, 50));
+            }
+            
+            // Обновляем финальное состояние
+            if (lastState) {
+                set({ state: lastState, loading: false });
+            } else {
+                set({ loading: false });
+            }
+            
+            console.log(`Выполнено ${stepCount} шагов. Финальный результат:`, lastState);
+            
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Ошибка выполнения оставшихся команд',
+                loading: false
+            });
+        }
+    },
+
     reset: async () => {
         try {
             set({ loading: true, error: null });
             const result = await apiService.reset();
             if (result.success) {
-                set({ state: result.state, loading: false });
+                set({ 
+                    state: result.state, 
+                    loading: false,
+                    error: null
+                });
+                console.log('Процессор сброшен:', result.state);
             } else {
                 set({ error: 'Ошибка сброса', loading: false });
             }

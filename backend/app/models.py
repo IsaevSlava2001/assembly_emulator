@@ -46,6 +46,7 @@ class ExecuteRequest(BaseModel):
     """Запрос на выполнение"""
     task_id: Optional[int] = None
     step_by_step: bool = False
+    source_code: Optional[str] = None
 
 class ResetRequest(BaseModel):
     """Запрос на сброс"""

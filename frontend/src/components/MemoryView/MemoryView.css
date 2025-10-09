@@ -98,6 +98,108 @@
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(30, 64, 175, 0.05));
 }
 
+/* ADD: Memory change animations */
+@keyframes memoryChange {
+  0% {
+    background-color: rgba(251, 191, 36, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    background-color: rgba(251, 191, 36, 0.6);
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: rgba(251, 191, 36, 0.1);
+    transform: scale(1);
+  }
+}
+
+@keyframes memoryHighlight {
+  0% {
+    background-color: rgba(251, 191, 36, 0.8);
+    transform: scale(1);
+  }
+  50% {
+    background-color: rgba(251, 191, 36, 1);
+    transform: scale(1.1);
+  }
+  100% {
+    background-color: rgba(251, 191, 36, 0.8);
+    transform: scale(1);
+  }
+}
+
+@keyframes valueChange {
+  0% {
+    color: #f59e0b;
+    transform: translateY(0);
+  }
+  50% {
+    color: #d97706;
+    transform: translateY(-2px);
+  }
+  100% {
+    color: #f59e0b;
+    transform: translateY(0);
+  }
+}
+
+.memory-changed {
+  animation: memoryChange 1s ease-in-out;
+}
+
+.memory-highlighted {
+  animation: memoryHighlight 0.5s ease-in-out infinite;
+}
+
+.value-changed {
+  animation: valueChange 0.8s ease-in-out;
+}
+
+/* ADD: Enhanced memory cell styling */
+.memory-cell {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin: 2px;
+  display: inline-block;
+}
+
+.memory-cell:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ADD: Memory status indicators */
+.memory-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.memory-status.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.memory-status.changed {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  animation: bounce 1s infinite;
+}
+
+.memory-status.empty {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+}
+
 /* ADD: Responsive design for memory sections */
 @media (min-width: 768px) {
   .memory-sections {

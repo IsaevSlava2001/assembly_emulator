@@ -1,5 +1,5 @@
 // ADD: Command editor component for assembly code input and display
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button, Textarea } from 'flowbite-react';
 import { useEmulatorStore } from '../../store/emulatorStore';
 import { apiService } from '../../services/api';
@@ -53,6 +53,13 @@ export const CommandEditor: React.FC = () => {
     setSourceCode(exampleCode);
     setActiveTab('editor');
   };
+
+  // Сбрасываем состояние компиляции при сбросе процессора
+  useEffect(() => {
+    if (state.processor.program_counter === 0 && state.processor.stack.length === 0) {
+      setCompileSuccess(false);
+    }
+  }, [state.processor.program_counter, state.processor.stack.length]);
 
   return (
     <Card className="glass-card p-6">

@@ -4,7 +4,7 @@ import { useEmulatorStore } from '../../store/emulatorStore';
 import './ControlPanel.css';
 
 export const ControlPanel: React.FC = () => {
-  const { executeStep, executeCode, reset, loading } = useEmulatorStore();
+  const { executeStep, executeRemaining, reset, loading } = useEmulatorStore();
 
   return (
     <Card className="glass-card p-6">
@@ -34,7 +34,7 @@ export const ControlPanel: React.FC = () => {
           color="success"
           size="lg"
           className="h-16 flex flex-col items-center justify-center space-y-2"
-          onClick={() => executeCode()}
+          onClick={executeRemaining}
           disabled={loading}
         >
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">

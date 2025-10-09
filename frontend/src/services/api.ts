@@ -63,6 +63,7 @@ class ApiService {
   async reset(): Promise<{ success: boolean; state: EmulatorState }> {
     return this.request('/api/reset', {
       method: 'POST',
+      body: JSON.stringify({}),
     });
   }
 
