@@ -4,10 +4,49 @@ import { useEmulatorStore } from '../../store/emulatorStore';
 import './ProcessorView.css';
 
 export const ProcessorView: React.FC = () => {
-  const { state } = useEmulatorStore();
+  const { state, compileCode, executeCode } = useEmulatorStore();
   const { processor } = state;
   const [previousCounter, setPreviousCounter] = useState(processor.program_counter);
   const [animateCounter, setAnimateCounter] = useState(false);
+  
+  // Состояния для отслеживания изменений флагов
+  const [previousFlags, setPreviousFlags] = useState(processor.flags);
+  const [animateFlags, setAnimateFlags] = useState({
+    zero: false,
+    carry: false,
+    overflow: false
+  });
+
+  // Функции для тестирования флагов
+  const testZeroFlag = async () => {
+    const testCode = "PUSH 5\nPUSH 5\nSUB\nHALT";
+    try {
+      await compileCode(testCode);
+      await executeCode({ source_code: testCode, step_by_step: false });
+    } catch (error) {
+      console.error('Ошибка тестирования Zero флага:', error);
+    }
+  };
+
+  const testCarryFlag = async () => {
+    const testCode = "PUSH 255\nPUSH 1\nADD\nHALT";
+    try {
+      await compileCode(testCode);
+      await executeCode({ source_code: testCode, step_by_step: false });
+    } catch (error) {
+      console.error('Ошибка тестирования Carry флага:', error);
+    }
+  };
+
+  const testOverflowFlag = async () => {
+    const testCode = "PUSH 127\nPUSH 1\nADD\nHALT";
+    try {
+      await compileCode(testCode);
+      await executeCode({ source_code: testCode, step_by_step: false });
+    } catch (error) {
+      console.error('Ошибка тестирования Overflow флага:', error);
+    }
+  };
 
   // Отслеживаем изменения счетчика команд для анимации
   useEffect(() => {
@@ -19,6 +58,30 @@ export const ProcessorView: React.FC = () => {
       setTimeout(() => setAnimateCounter(false), 600);
     }
   }, [processor.program_counter]);
+
+  // Отслеживаем изменения флагов для анимации
+  useEffect(() => {
+    const flagsChanged = {
+      zero: processor.flags.zero !== previousFlags.zero,
+      carry: processor.flags.carry !== previousFlags.carry,
+      overflow: processor.flags.overflow !== previousFlags.overflow
+    };
+
+    // Если какой-либо флаг изменился
+    if (flagsChanged.zero || flagsChanged.carry || flagsChanged.overflow) {
+      setAnimateFlags(flagsChanged);
+      setPreviousFlags(processor.flags);
+
+      // Сбрасываем анимации через 800ms
+      setTimeout(() => {
+        setAnimateFlags({
+          zero: false,
+          carry: false,
+          overflow: false
+        });
+      }, 800);
+    }
+  }, [processor.flags, previousFlags]);
 
   return (
     <Card className="glass-card p-6">
@@ -55,38 +118,117 @@ export const ProcessorView: React.FC = () => {
 
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-3 font-body">Флаги состояния</label>
-            <div className="flex flex-wrap gap-2">
-              <Badge
-                color={processor.flags.zero ? "success" : "gray"}
-                size="lg"
-                className="px-3 py-1"
-              >
-                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Zero
-              </Badge>
-              <Badge
-                color={processor.flags.carry ? "success" : "gray"}
-                size="lg"
-                className="px-3 py-1"
-              >
-                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Carry
-              </Badge>
-              <Badge
-                color={processor.flags.overflow ? "success" : "gray"}
-                size="lg"
-                className="px-3 py-1"
-              >
-                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Overflow
-              </Badge>
+            <label className="block text-sm font-medium text-gray-700 mb-2 font-body">
+              Флаги состояния
+              {(animateFlags.zero || animateFlags.carry || animateFlags.overflow) && (
+                <span className="ml-2 text-xs text-orange-600 animate-pulse">↑ обновляются</span>
+              )}
+            </label>
+            <div className="space-y-2">
+              {/* Zero Flag */}
+              <div className="bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-300 transition-all duration-300 cursor-pointer" onClick={testZeroFlag}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                      processor.flags.zero 
+                        ? 'bg-green-500 animate-pulse' 
+                        : 'bg-gray-400'
+                    } ${animateFlags.zero ? 'animate-counter-increase' : ''}`}>
+                      {processor.flags.zero ? '1' : '0'}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800 text-sm">Zero</span>
+                      <span className="text-xs text-gray-500 ml-2">
+                        {processor.flags.zero ? '(ноль)' : '(не ноль)'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {animateFlags.zero && (
+                      <span className="text-xs text-orange-600 animate-bounce">↑</span>
+                    )}
+                    <button 
+                      className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        testZeroFlag();
+                      }}
+                    >
+                      Тест
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Carry Flag */}
+              <div className="bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-300 transition-all duration-300 cursor-pointer" onClick={testCarryFlag}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                      processor.flags.carry 
+                        ? 'bg-green-500 animate-pulse' 
+                        : 'bg-gray-400'
+                    } ${animateFlags.carry ? 'animate-counter-increase' : ''}`}>
+                      {processor.flags.carry ? '1' : '0'}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800 text-sm">Carry</span>
+                      <span className="text-xs text-gray-500 ml-2">
+                        {processor.flags.carry ? '(перенос)' : '(нет переноса)'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {animateFlags.carry && (
+                      <span className="text-xs text-orange-600 animate-bounce">↑</span>
+                    )}
+                    <button 
+                      className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        testCarryFlag();
+                      }}
+                    >
+                      Тест
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Overflow Flag */}
+              <div className="bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-300 transition-all duration-300 cursor-pointer" onClick={testOverflowFlag}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                      processor.flags.overflow 
+                        ? 'bg-green-500 animate-pulse' 
+                        : 'bg-gray-400'
+                    } ${animateFlags.overflow ? 'animate-counter-increase' : ''}`}>
+                      {processor.flags.overflow ? '1' : '0'}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800 text-sm">Overflow</span>
+                      <span className="text-xs text-gray-500 ml-2">
+                        {processor.flags.overflow ? '(переполнение)' : '(нет переполнения)'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {animateFlags.overflow && (
+                      <span className="text-xs text-orange-600 animate-bounce">↑</span>
+                    )}
+                    <button 
+                      className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        testOverflowFlag();
+                      }}
+                    >
+                      Тест
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
