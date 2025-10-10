@@ -4,11 +4,11 @@ import { useEmulatorStore } from '../../store/emulatorStore';
 import './ProcessorView.css';
 
 export const ProcessorView: React.FC = () => {
-  const { state, compileCode, executeCode } = useEmulatorStore();
+  const { state } = useEmulatorStore();
   const { processor } = state;
   const [previousCounter, setPreviousCounter] = useState(processor.program_counter);
   const [animateCounter, setAnimateCounter] = useState(false);
-  
+
   // Состояния для отслеживания изменений флагов
   const [previousFlags, setPreviousFlags] = useState(processor.flags);
   const [animateFlags, setAnimateFlags] = useState({
@@ -17,36 +17,6 @@ export const ProcessorView: React.FC = () => {
     overflow: false
   });
 
-  // Функции для тестирования флагов
-  const testZeroFlag = async () => {
-    const testCode = "PUSH 5\nPUSH 5\nSUB\nHALT";
-    try {
-      await compileCode(testCode);
-      await executeCode({ source_code: testCode, step_by_step: false });
-    } catch (error) {
-      console.error('Ошибка тестирования Zero флага:', error);
-    }
-  };
-
-  const testCarryFlag = async () => {
-    const testCode = "PUSH 255\nPUSH 1\nADD\nHALT";
-    try {
-      await compileCode(testCode);
-      await executeCode({ source_code: testCode, step_by_step: false });
-    } catch (error) {
-      console.error('Ошибка тестирования Carry флага:', error);
-    }
-  };
-
-  const testOverflowFlag = async () => {
-    const testCode = "PUSH 127\nPUSH 1\nADD\nHALT";
-    try {
-      await compileCode(testCode);
-      await executeCode({ source_code: testCode, step_by_step: false });
-    } catch (error) {
-      console.error('Ошибка тестирования Overflow флага:', error);
-    }
-  };
 
   // Отслеживаем изменения счетчика команд для анимации
   useEffect(() => {
@@ -124,110 +94,56 @@ export const ProcessorView: React.FC = () => {
                 <span className="ml-2 text-xs text-orange-600 animate-pulse">↑ обновляются</span>
               )}
             </label>
-            <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-2">
               {/* Zero Flag */}
-              <div className="bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-300 transition-all duration-300 cursor-pointer" onClick={testZeroFlag}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
-                      processor.flags.zero 
-                        ? 'bg-green-500 animate-pulse' 
-                        : 'bg-gray-400'
-                    } ${animateFlags.zero ? 'animate-counter-increase' : ''}`}>
-                      {processor.flags.zero ? '1' : '0'}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-800 text-sm">Zero</span>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {processor.flags.zero ? '(ноль)' : '(не ноль)'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {animateFlags.zero && (
-                      <span className="text-xs text-orange-600 animate-bounce">↑</span>
-                    )}
-                    <button 
-                      className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        testZeroFlag();
-                      }}
-                    >
-                      Тест
-                    </button>
-                  </div>
+              <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.zero
+                  ? 'bg-green-500 animate-pulse'
+                  : 'bg-gray-400'
+                  } ${animateFlags.zero ? 'animate-counter-increase' : ''}`}>
+                  {processor.flags.zero ? '1' : '0'}
                 </div>
+                <div className="text-xs font-semibold text-gray-800 mb-1">Zero</div>
+                <div className="text-xs text-gray-500">
+                  {processor.flags.zero ? 'ноль' : 'не ноль'}
+                </div>
+                {animateFlags.zero && (
+                  <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
+                )}
               </div>
 
               {/* Carry Flag */}
-              <div className="bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-300 transition-all duration-300 cursor-pointer" onClick={testCarryFlag}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
-                      processor.flags.carry 
-                        ? 'bg-green-500 animate-pulse' 
-                        : 'bg-gray-400'
-                    } ${animateFlags.carry ? 'animate-counter-increase' : ''}`}>
-                      {processor.flags.carry ? '1' : '0'}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-800 text-sm">Carry</span>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {processor.flags.carry ? '(перенос)' : '(нет переноса)'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {animateFlags.carry && (
-                      <span className="text-xs text-orange-600 animate-bounce">↑</span>
-                    )}
-                    <button 
-                      className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        testCarryFlag();
-                      }}
-                    >
-                      Тест
-                    </button>
-                  </div>
+              <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.carry
+                  ? 'bg-green-500 animate-pulse'
+                  : 'bg-gray-400'
+                  } ${animateFlags.carry ? 'animate-counter-increase' : ''}`}>
+                  {processor.flags.carry ? '1' : '0'}
                 </div>
+                <div className="text-xs font-semibold text-gray-800 mb-1">Carry</div>
+                <div className="text-xs text-gray-500">
+                  {processor.flags.carry ? 'перенос' : 'нет переноса'}
+                </div>
+                {animateFlags.carry && (
+                  <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
+                )}
               </div>
 
               {/* Overflow Flag */}
-              <div className="bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-300 transition-all duration-300 cursor-pointer" onClick={testOverflowFlag}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
-                      processor.flags.overflow 
-                        ? 'bg-green-500 animate-pulse' 
-                        : 'bg-gray-400'
-                    } ${animateFlags.overflow ? 'animate-counter-increase' : ''}`}>
-                      {processor.flags.overflow ? '1' : '0'}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-800 text-sm">Overflow</span>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {processor.flags.overflow ? '(переполнение)' : '(нет переполнения)'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {animateFlags.overflow && (
-                      <span className="text-xs text-orange-600 animate-bounce">↑</span>
-                    )}
-                    <button 
-                      className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        testOverflowFlag();
-                      }}
-                    >
-                      Тест
-                    </button>
-                  </div>
+              <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.overflow
+                  ? 'bg-green-500 animate-pulse'
+                  : 'bg-gray-400'
+                  } ${animateFlags.overflow ? 'animate-counter-increase' : ''}`}>
+                  {processor.flags.overflow ? '1' : '0'}
                 </div>
+                <div className="text-xs font-semibold text-gray-800 mb-1">Overflow</div>
+                <div className="text-xs text-gray-500">
+                  {processor.flags.overflow ? 'переполнение' : 'нет переполнения'}
+                </div>
+                {animateFlags.overflow && (
+                  <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
+                )}
               </div>
             </div>
           </div>
