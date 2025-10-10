@@ -317,7 +317,7 @@ assembly_emulator/
 | Роль | ФИО | Контакты |
 |---------|----------|--------|
 | Frontend | Чугунова Дарья | @daria_chugu |
-| Backend | Исаев Владислав | @ogurchikRoma |
+| Backend | Исаев Владислав | @isaevslava |
 </div>
 
 ## Лицензия
