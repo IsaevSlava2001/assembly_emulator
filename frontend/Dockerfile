@@ -15,7 +15,7 @@ COPY . .
 
 RUN npm i
 # Собираем приложение React
-RUN npm run build
+RUN npm run dev
 
 # Устанавливаем сервер статических файлов
 RUN npm install -g serve
