@@ -7,19 +7,18 @@ WORKDIR /app
 # Копируем файлы package.json и package-lock.json
 COPY package*.json ./
 
-# Устанавливаем зависимости
-RUN npm install
+# Устанавливаем зависимости (включая dev для сборки)
+RUN npm ci
 
 # Копируем все файлы проекта внутрь контейнера
 COPY . .
 
-RUN npm i
-# Собираем приложение React
-RUN npm run dev
+# Собираем приложение React для продакшна
+RUN npm run build
 
 # Устанавливаем сервер статических файлов
 RUN npm install -g serve
 
 EXPOSE 3000
 
-CMD ["serve", "-s", "dist"]
+CMD ["serve", "-s", "dist", "-l", "3000"]

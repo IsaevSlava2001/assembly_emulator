@@ -30,7 +30,7 @@ export const useEmulatorStore = create<{
     error: string | null;
     current_task: number | null;
     setSourceCode: (code: string) => void;
-    setCurrentTask: (taskId: number) => void;
+    setCurrentTask: (taskId: number | null) => void;
     loadState: () => Promise<void>;
     loadTasks: () => Promise<void>;
     compileCode: (code: string) => Promise<void>;
@@ -41,7 +41,7 @@ export const useEmulatorStore = create<{
     setState: (newState: EmulatorState) => void;
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
-}>((set, /*get*/) => ({
+}>((set, get) => ({
     state: initialState,
     tasks: [],
     loading: false,
@@ -118,7 +118,7 @@ export const useEmulatorStore = create<{
             // Если taskId не указан, используем текущий исходный код
             const request = taskId 
                 ? { task_id: taskId, step_by_step: false }
-                : { task_id: null, step_by_step: false, source_code: state.source_code };
+                : { task_id: null, step_by_step: false, source_code: get().state.source_code };
             
             const result = await apiService.executeCode(request);
             if (result.success) {

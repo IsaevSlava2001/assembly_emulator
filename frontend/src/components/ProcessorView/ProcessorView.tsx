@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Badge } from 'flowbite-react';
+import { Card } from 'flowbite-react';
 import { useEmulatorStore } from '../../store/emulatorStore';
 import './ProcessorView.css';
 
