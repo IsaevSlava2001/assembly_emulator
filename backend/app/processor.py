@@ -41,6 +41,29 @@ class StackProcessor:
             raise Exception("Stack is empty")
         return self.processor.stack[-1]
     
+    def _parse_operand(self, operand_str: str) -> int:
+        """Парсинг операнда с поддержкой разных форматов чисел"""
+        return self._parse_number(operand_str)
+    
+    def _parse_number(self, value: str) -> int:
+        """
+        Парсит числовые значения в разных форматах:
+        - Десятичные: 100, 255
+        - Шестнадцатеричные: 0x100, 0xFF
+        - Двоичные: 0b1010 (опционально)
+        """
+        value = value.strip().lower()
+        
+        if value.startswith('0x'):
+            # Шестнадцатеричный формат
+            return int(value[2:], 16)
+        elif value.startswith('0b'):
+            # Двоичный формат (опционально)
+            return int(value[2:], 2)
+        else:
+            # Десятичный формат по умолчанию
+            return int(value)
+    
     def load_from_memory(self, address: int) -> int:
         """Загрузить значение из памяти"""
         if 0 <= address < self.memory_size:
@@ -85,6 +108,18 @@ class StackProcessor:
                 self.push(b)
             else:
                 raise Exception("Cannot SWAP with less than 2 elements")
+        
+        elif instruction == "ROT":
+            if len(self.processor.stack) >= 3:
+                c = self.pop()  # Третий элемент (верхний)
+                b = self.pop()  # Второй элемент
+                a = self.pop()  # Первый элемент (нижний)
+                # Ротация: [a, b, c] → [b, c, a]
+                self.push(b)
+                self.push(c)
+                self.push(a)
+            else:
+                raise Exception("Cannot ROT with less than 3 elements")
         
         elif instruction == "ADD":
             if len(self.processor.stack) >= 2:
@@ -211,7 +246,7 @@ class StackProcessor:
         instruction_line = self.compiled_code[self.processor.program_counter]
         parts = instruction_line.split()
         instruction = parts[0]
-        operand = int(parts[1]) if len(parts) > 1 else None
+        operand = self._parse_operand(parts[1]) if len(parts) > 1 else None
         
         # Сохраняем текущую команду для отображения
         self.processor.current_command = instruction_line

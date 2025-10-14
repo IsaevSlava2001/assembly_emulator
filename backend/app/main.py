@@ -111,7 +111,7 @@ async def execute_code(request: ExecuteRequest):
             for instruction_line in machine_code:
                 parts = instruction_line.split()
                 instruction = parts[0]
-                operand = int(parts[1]) if len(parts) > 1 else None
+                operand = processor._parse_operand(parts[1]) if len(parts) > 1 else None
                 
                 processor.execute_instruction(instruction, operand)
                 
@@ -137,7 +137,7 @@ async def execute_code(request: ExecuteRequest):
             for instruction_line in machine_code:
                 parts = instruction_line.split()
                 instruction = parts[0]
-                operand = int(parts[1]) if len(parts) > 1 else None
+                operand = processor._parse_operand(parts[1]) if len(parts) > 1 else None
                 
                 processor.execute_instruction(instruction, operand)
                 

@@ -50,39 +50,76 @@ export const CommandEditor: React.FC = () => {
 
   const handleLoadTaskExample = (taskId: number) => {
     const examples = {
-      1: `PUSH 5          
-PUSH 0          
-PUSH 0 
-PUSH 10         
-ADD
-PUSH 20
-ADD
-PUSH 30
-ADD
-PUSH 40
-ADD
-PUSH 50
-ADD
-PUSH 0
-STORE
-HALT`,
+      1: `; Инициализация размера массива
+PUSH 7           ; Размер массива (7 элементов)
 
-      2: `PUSH 0
-PUSH 2
-PUSH 1
-MUL
-ADD
-PUSH 3
-PUSH 2
-MUL
-ADD
-PUSH 4
-PUSH 3
-MUL
-ADD
-PUSH 0
-STORE
-HALT`
+; Инициализация элементов массива
+PUSH 10          ; Элемент 1
+PUSH 20          ; Элемент 2
+PUSH 30          ; Элемент 3
+PUSH 40          ; Элемент 4
+PUSH 50          ; Элемент 5
+PUSH 60          ; Элемент 6
+PUSH 70          ; Элемент 7
+
+; Программа суммирования массива
+; Стек: [70, 60, 50, 40, 30, 20, 10, 7]
+PUSH 0           ; Аккумулятор для суммы = 0
+
+LOOP_START:
+  ; Проверка условия выхода
+  DUP            ; Дублируем счетчик: [..., 0, 7, 7]
+  JZ LOOP_END    ; Если счетчик == 0, выходим
+  
+  ; Берем элемент массива и складываем с аккумулятором
+  SWAP           ; [..., 0, 7, 7] → [..., 7, 7, 0]
+  ADD            ; Суммируем элемент с аккумулятором
+  SWAP           ; [..., 7, сумма] → [..., сумма, 7]
+  DEC            ; Уменьшаем счетчик: 7-1=6
+  
+  JMP LOOP_START ; Повторяем цикл
+
+LOOP_END:
+  ; Завершение
+  POP            ; Убираем счетчик (0)
+  HALT           ; Завершаем выполнение, сумма на вершине стека
+
+; Простая логика цикла:
+; 1. Проверяем счетчик (JZ)
+; 2. Берем элемент с вершины стека
+; 3. Складываем с аккумулятором
+; 4. Уменьшаем счетчик
+; 5. Повторяем цикл
+; Результат: программа корректно вычислит сумму 10+20+30+40+50+60+70 = 280`,
+
+      2: `; Свертка двух массивов
+PUSH [0x1000]    ; Размер массива A
+PUSH [0x1010]    ; Размер массива B
+PUSH 0           ; Инициализируем результат
+
+CONV_LOOP:
+  DUP            ; Дублируем счетчик
+  JZ CONV_EXIT   ; Если счетчик = 0, выходим
+  DEC            ; Уменьшаем счетчик
+  
+  ; Загружаем элементы массивов
+  PUSH [0x1001]  ; Базовый адрес A
+  ADD            ; Добавляем смещение
+  LOAD           ; Загружаем A[i]
+  
+  PUSH [0x1011]  ; Базовый адрес B
+  ADD            ; Добавляем смещение
+  LOAD           ; Загружаем B[i]
+  
+  MUL            ; Умножаем A[i] * B[i]
+  ADD            ; Добавляем к результату
+  JMP CONV_LOOP  ; Повторяем цикл
+
+CONV_EXIT:
+  POP            ; Убираем счетчик со стека
+  PUSH 0x1100    ; Адрес для результата
+  STORE          ; Сохраняем результат
+  HALT           ; Завершаем выполнение`
     };
 
     setExampleCode(examples[taskId as keyof typeof examples] || '');
@@ -236,38 +273,38 @@ HALT`
               </p>
 
               {/* Кнопки для выбора примера */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-  <Button
-    style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
-    size="sm"
-    onClick={() => handleLoadTaskExample(1)}
-    className="flex items-center justify-center space-x-2 h-12 text-white"
-  >
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-    </svg>
-    <div className="text-left">
-      <div className="font-semibold">Задача 1</div>
-      <div className="text-xs opacity-90">Сумма массива</div>
-    </div>
-  </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button
+                  style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                  size="sm"
+                  onClick={() => handleLoadTaskExample(1)}
+                  className="flex items-center justify-center space-x-2 h-12 text-white"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <div className="text-left">
+                    <div className="font-semibold">Задача 1</div>
+                    <div className="text-xs opacity-90">Сумма массива</div>
+                  </div>
+                </Button>
 
-               <Button
-  style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
-  size="sm"
-  onClick={() => handleLoadTaskExample(2)}
-  className="flex items-center justify-center space-x-2 h-12 text-white"
->
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-  </svg>
-  <div className="text-left">
-    <div className="font-semibold">Задача 2</div>
-    <div className="text-xs opacity-90">Свертка массивов</div>
-  </div>
-</Button>
-</div>
-</div>
+                <Button
+                  style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                  size="sm"
+                  onClick={() => handleLoadTaskExample(2)}
+                  className="flex items-center justify-center space-x-2 h-12 text-white"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  <div className="text-left">
+                    <div className="font-semibold">Задача 2</div>
+                    <div className="text-xs opacity-90">Свертка массивов</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
 
             {exampleCode && (
               <div className="space-y-4">

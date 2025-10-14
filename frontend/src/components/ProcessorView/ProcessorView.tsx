@@ -173,6 +173,37 @@ export const ProcessorView: React.FC = () => {
               <span className="text-gray-400">]</span>
             </div>
           </div>
+
+          {/* Результат выполнения программы */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border-2 border-green-200">
+            <label className="block text-sm font-medium text-gray-700 mb-2 font-body flex items-center">
+              <svg className="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Результат выполнения
+              {processor.is_halted && (
+                <span className="ml-2 text-xs text-green-600 animate-pulse">✓ завершено</span>
+              )}
+            </label>
+            <div className="text-2xl font-mono font-bold text-green-700 bg-white rounded-lg p-4 text-center border border-green-200">
+              {(() => {
+                // Получаем результат из памяти по адресу 0x1100
+                const resultAddress = 0x1100;
+                const memoryValue = state.memory.ram[resultAddress];
+
+                if (processor.is_halted && memoryValue !== undefined && memoryValue !== 0) {
+                  return `Сумма = ${memoryValue}`;
+                } else if (processor.is_halted) {
+                  return 'Программа завершена';
+                } else {
+                  return 'Выполняется...';
+                }
+              })()}
+            </div>
+            <div className="text-xs text-gray-600 mt-2 text-center">
+              {processor.is_halted ? 'Результат сохранен в памяти по адресу 0x1100' : 'Ожидание завершения программы...'}
+            </div>
+          </div>
         </div>
       </div>
     </Card>

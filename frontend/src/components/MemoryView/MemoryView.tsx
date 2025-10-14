@@ -24,6 +24,21 @@ export const MemoryView: React.FC = () => {
     programCounter: entry.programCounter || 0,
   }));
 
+  // Данные для вкладки "Исполнение"
+  const executionData = memory.history.map((entry, index) => {
+    const prevStack = index > 0 ? memory.history[index - 1].stack || [] : [];
+    const currentStack = entry.stack || [];
+
+    return {
+      step: index + 1,
+      command: entry.command || 'N/A',
+      stackBefore: `[${prevStack.join(', ')}]`,
+      stackAfter: `[${currentStack.join(', ')}]`,
+      flags: entry.flags ? `Z=${entry.flags.zero ? 1 : 0} C=${entry.flags.carry ? 1 : 0} O=${entry.flags.overflow ? 1 : 0}` : '---',
+      programCounter: entry.programCounter || 0
+    };
+  });
+
   // Создаем данные для отображения: сначала стек, потом RAM
   const stackData = state.processor.stack.map((value, index) => ({
     address: `STK${index}`,
@@ -136,202 +151,97 @@ export const MemoryView: React.FC = () => {
   return (
     <Card title="Память" className="memory-card">
       <div className="memory-sections">
+        {/* Вкладка "Исполнение" */}
         <div className="memory-section">
-          <h4 className="flex items-center">
-            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ВРЕМЯ</span>
-            Память по времени
-            {memory.history.length > 0 && (
-              <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
-                Активна
-              </span>
-            )}
-          </h4>
-          <DataTable
-            value={historyData}
-            size="small"
-            className={`history-table ${memory.history.length > previousHistoryLength ? 'animate-slide-in-up' : ''}`}
-            emptyMessage="Нет данных"
-          >
-            <Column
-              field="step"
-              header="Шаг"
-              style={{ width: '60px' }}
-              body={(rowData) => (
-                <span className="font-mono text-blue-600 font-bold">{rowData.step}</span>
+            <h4 className="flex items-center mb-4">
+              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ИСПОЛНЕНИЕ</span>
+              Пошаговое выполнение программы
+              {memory.history.length > 0 && (
+                <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
+                  Активно
+                </span>
               )}
-            />
-            <Column
-              field="command"
-              header="Команда"
-              body={(rowData) => (
-                <span className="font-mono text-gray-800">{rowData.command}</span>
-              )}
-            />
-            <Column
-              field="stack"
-              header="Стек"
-              body={(rowData) => (
-                <span className="font-mono text-green-600">{rowData.stack}</span>
-              )}
-            />
-            <Column
-              field="programCounter"
-              header="Счётчик"
-              style={{ width: '80px' }}
-              body={(rowData) => (
-                <span className="font-mono text-purple-600 font-bold">{rowData.programCounter}</span>
-              )}
-            />
-          </DataTable>
-        </div>
-
-        <div className="memory-section">
-          <h4 className="flex items-center">
-            <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">ПАМЯТЬ</span>
-            Состояние памяти
-            {totalMemoryCells > 0 && (
-              <span className="ml-2 bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
-                {usedStackCells > 0 ? `${usedStackCells} стек` : ''}
-                {usedStackCells > 0 && usedRamCells > 0 ? ' + ' : ''}
-                {usedRamCells > 0 ? `${usedRamCells} RAM` : ''}
-                {usedStackCells === 0 && usedRamCells === 0 ? `${totalMemoryCells} ячеек` : ''}
-              </span>
-            )}
-            {changedAddresses.size > 0 && (
-              <span className="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
-                {changedAddresses.size} изменений
-              </span>
-            )}
-            {memoryChanges.size > 0 && (
-              <div className="ml-2 text-xs text-gray-600">
-                {Array.from(memoryChanges.entries()).map(([address, change]) => (
-                  <div key={address} className="flex items-center space-x-1">
-                    <span className="font-mono">0x{address.toString(16).padStart(4, '0')}:</span>
-                    <span className="text-gray-500">{change.oldValue} →</span>
-                    <span className="text-green-600 font-bold">{change.newValue}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </h4>
-          <DataTable
-            value={displayData}
-            size="small"
-            className={`ram-table ${memory.ram.length > previousRamLength ? 'animate-slide-in-up' : ''}`}
-            emptyMessage="Память пуста"
-          >
-            <Column
-              field="address"
-              header="Адрес"
-              style={{ width: '80px' }}
-              body={(rowData) => {
-                const addressIndex = rowData.type === 'stack' ?
-                  parseInt(rowData.address.replace('STK', '')) :
-                  parseInt(rowData.address, 16);
-                const isChanged = changedAddresses.has(addressIndex);
-                const isHighlighted = highlightedAddresses.has(addressIndex);
-
-                return (
-                  <div className="flex items-center space-x-2">
-                    <span className={`font-mono font-bold transition-all duration-300 ${isHighlighted
-                      ? 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded animate-pulse'
-                      : isChanged
-                        ? 'text-orange-600 bg-orange-50 px-1 py-0.5 rounded'
-                        : rowData.type === 'stack'
-                          ? 'text-blue-600'
-                          : 'text-gray-600'
-                      }`}>
-                      {rowData.type === 'stack' ? rowData.address : `0x${rowData.address}`}
-                    </span>
-                    {rowData.type === 'stack' && (
-                      <span className="text-xs text-blue-500 bg-blue-50 px-1 py-0.5 rounded">
-                        СТЕК
-                      </span>
-                    )}
-                  </div>
-                );
-              }}
-            />
-            <Column
-              field="value"
-              header="Значение"
-              body={(rowData) => {
-                const addressIndex = parseInt(rowData.address, 16);
-                const isChanged = changedAddresses.has(addressIndex);
-                const isHighlighted = highlightedAddresses.has(addressIndex);
-                const hasValue = rowData.value !== 0;
-                const change = memoryChanges.get(addressIndex);
-
-                return (
-                  <div className="flex items-center space-x-2">
-                    <span className={`font-mono font-bold transition-all duration-300 ${isHighlighted
-                      ? 'text-yellow-600 bg-yellow-100 px-2 py-1 rounded animate-pulse'
-                      : isChanged
-                        ? 'text-orange-600 bg-orange-50 px-1 py-0.5 rounded'
-                        : hasValue
-                          ? 'text-green-600'
-                          : 'text-gray-400'
-                      }`}>
-                      {rowData.value}
-                    </span>
-                    {change && (
-                      <div className="flex items-center space-x-1">
-                        <span className="text-xs text-gray-500">
-                          {change.oldValue} →
-                        </span>
-                        <span className="text-xs text-orange-500 animate-bounce">
-                          ↑ изменилось
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              }}
-            />
-          </DataTable>
-          <div className="mt-3 flex justify-center space-x-2">
-            {hasMoreItems && (
-              <Button
-                color="light"
-                size="sm"
-                onClick={handleLoadMore}
-                className="flex items-center space-x-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-                Показать еще 5 позиций
-              </Button>
-            )}
-            {visibleMemoryItems > 5 && (
-              <Button
-                color="gray"
-                size="sm"
-                onClick={handleReset}
-                className="flex items-center space-x-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Свернуть
-              </Button>
-            )}
+            </h4>
+            <DataTable
+              value={executionData}
+              size="small"
+              className={`history-table ${memory.history.length > previousHistoryLength ? 'animate-slide-in-up' : ''}`}
+              emptyMessage="Нет данных"
+            >
+              <Column
+                field="step"
+                header="ШАГ"
+                style={{ width: '60px' }}
+                body={(rowData) => (
+                  <span className="font-mono text-blue-600 font-bold">{rowData.step}</span>
+                )}
+              />
+              <Column
+                field="command"
+                header="КОМАНДА"
+                body={(rowData) => (
+                  <span className="font-mono text-gray-800 bg-gray-50 px-2 py-1 rounded">{rowData.command}</span>
+                )}
+              />
+              <Column
+                field="stackBefore"
+                header="СТЕК ДО"
+                body={(rowData) => (
+                  <span className="font-mono text-orange-600">{rowData.stackBefore}</span>
+                )}
+              />
+              <Column
+                field="stackAfter"
+                header="СТЕК ПОСЛЕ"
+                body={(rowData) => (
+                  <span className="font-mono text-green-600 font-bold">{rowData.stackAfter}</span>
+                )}
+              />
+              <Column
+                field="flags"
+                header="ФЛАГИ"
+                style={{ width: '100px' }}
+                body={(rowData) => (
+                  <span className="font-mono text-purple-600 text-xs">{rowData.flags}</span>
+                )}
+              />
+            </DataTable>
           </div>
-          {allMemoryData.length > 0 && (
-            <div className="mt-2 text-center text-sm text-gray-500">
-              Показано {visibleMemoryItems} из {allMemoryData.length} позиций
-              {usedStackCells > 0 && (
-                <span className="ml-2 text-blue-600">
-                  ({usedStackCells} в стеке)
-                </span>
-              )}
-              {usedRamCells > 0 && (
-                <span className="ml-2 text-green-600">
-                  ({usedRamCells} в RAM)
-                </span>
-              )}
+
+        {/* Секция результата */}
+        <div className="memory-section">
+          <h4 className="flex items-center">
+            <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2">РЕЗУЛЬТАТ</span>
+            Итоговая сумма
+            {state.processor.is_halted && state.processor.stack.length > 0 && state.processor.stack[state.processor.stack.length - 1] !== 0 && (
+              <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded animate-pulse">
+                ✓ готово
+              </span>
+            )}
+          </h4>
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border-2 border-green-200">
+            <div className="text-center">
+              <div className="text-3xl font-mono font-bold text-green-700 mb-2">
+                {(() => {
+                  // Проверяем вершину стека для результата
+                  const stackTop = state.processor.stack.length > 0 ? state.processor.stack[state.processor.stack.length - 1] : 0;
+                  if (state.processor.is_halted && stackTop !== undefined && stackTop !== 0) {
+                    return stackTop;
+                  } else if (state.processor.is_halted) {
+                    return '0';
+                  } else {
+                    return '...';
+                  }
+                })()}
+              </div>
+              <div className="text-sm text-gray-600 mb-2">
+                {state.processor.is_halted ? 'Сумма элементов массива' : 'Вычисляется...'}
+              </div>
+              <div className="text-xs text-gray-500">
+                Вершина стека
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </Card>

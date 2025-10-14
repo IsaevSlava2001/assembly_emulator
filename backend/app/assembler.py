@@ -27,7 +27,26 @@ class Assembler:
             'HALT': 0xFF
         }
     
-    def parse_line(self, line: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
+    def _parse_number(self, value: str) -> int:
+        """
+        Парсит числовые значения в разных форматах:
+        - Десятичные: 100, 255
+        - Шестнадцатеричные: 0x100, 0xFF
+        - Двоичные: 0b1010 (опционально)
+        """
+        value = value.strip().lower()
+        
+        if value.startswith('0x'):
+            # Шестнадцатеричный формат
+            return int(value[2:], 16)
+        elif value.startswith('0b'):
+            # Двоичный формат (опционально)
+            return int(value[2:], 2)
+        else:
+            # Десятичный формат по умолчанию
+            return int(value)
+    
+    def parse_line(self, line: str, resolve_labels: bool = False, labels: Dict[str, int] = None) -> Tuple[Optional[str], Optional[str], Optional[int]]:
         """Парсинг строки ассемблера"""
         line = line.strip()
         
@@ -61,19 +80,41 @@ class Assembler:
             if operand_str.startswith('[') and operand_str.endswith(']'):
                 # Загрузка из памяти [address]
                 address_str = operand_str[1:-1]
-                if address_str.startswith('0x'):
-                    operand = int(address_str, 16)
-                else:
-                    operand = int(address_str)
-            elif operand_str.startswith('0x'):
-                # Шестнадцатеричное число
-                operand = int(operand_str, 16)
+                operand = self._parse_number(address_str)
             else:
-                # Обычное число
-                operand = int(operand_str)
+                # Проверяем, является ли операнд меткой
+                if resolve_labels and labels and operand_str in labels:
+                    operand = labels[operand_str]
+                elif not resolve_labels:
+                    # В первом проходе пытаемся распарсить как число, иначе сохраняем как строку
+                    try:
+                        operand = self._parse_number(operand_str)
+                    except ValueError:
+                        # Если не число, то это метка
+                        operand = operand_str
+                else:
+                    # Во втором проходе пытаемся распарсить как число
+                    try:
+                        operand = self._parse_number(operand_str)
+                    except ValueError:
+                        # Неизвестная метка или некорректный операнд
+                        raise ValueError(f"Неизвестная метка или некорректный операнд: {operand_str}")
         
         return label, instruction, operand
     
+    def _format_operand(self, instruction: str, operand) -> str:
+        """Форматирование операнда для отображения"""
+        if instruction in ['PUSH', 'LOAD', 'STORE', 'JMP', 'JZ', 'JNZ'] and operand is not None:
+            # Для команд с адресами отображаем в шестнадцатеричном формате
+            if isinstance(operand, int) and operand >= 0x1000:  # Если это адрес памяти
+                return f"{instruction} 0x{operand:04X}"
+            else:
+                return f"{instruction} {operand}"
+        elif operand is not None:
+            return f"{instruction} {operand}"
+        else:
+            return instruction
+
     def assemble(self, source_code: str) -> Tuple[List[str], Dict[str, int]]:
         """Ассемблирование исходного кода"""
         lines = source_code.split('\n')
@@ -82,11 +123,15 @@ class Assembler:
         
         # Первый проход: сбор меток
         for i, line in enumerate(lines):
-            label, instruction, operand = self.parse_line(line)
+            label, instruction, operand = self.parse_line(line, resolve_labels=False)
             if label:
                 labels[label] = i
             if instruction:
-                machine_code.append(f"{instruction} {operand}" if operand is not None else instruction)
+                # В первом проходе сохраняем как есть, форматирование будет во втором проходе
+                if operand is not None:
+                    machine_code.append(f"{instruction} {operand}")
+                else:
+                    machine_code.append(instruction)
         
         # Второй проход: замена меток на адреса
         resolved_code = []
@@ -99,7 +144,7 @@ class Assembler:
                 # Проверяем, является ли операнд меткой
                 if operand_str in labels:
                     operand = labels[operand_str]
-                    resolved_code.append(f"{instruction} {operand}")
+                    resolved_code.append(self._format_operand(instruction, operand))
                 else:
                     resolved_code.append(instruction_line)
             else:
