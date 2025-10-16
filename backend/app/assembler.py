@@ -146,7 +146,9 @@ class Assembler:
                     operand = labels[operand_str]
                     resolved_code.append(self._format_operand(instruction, operand))
                 else:
-                    resolved_code.append(instruction_line)
+                    # Парсим операнд и применяем форматирование
+                    operand = self._parse_number(operand_str)
+                    resolved_code.append(self._format_operand(instruction, operand))
             else:
                 resolved_code.append(instruction_line)
         

@@ -41,6 +41,7 @@ export const useEmulatorStore = create<{
     setState: (newState: EmulatorState) => void;
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
+    loadTask2Data: () => Promise<void>;
 }>((set, get) => ({
     state: initialState,
     tasks: [],
@@ -52,14 +53,53 @@ export const useEmulatorStore = create<{
         state: { ...state.state, source_code: code }
     })),
 
-    setCurrentTask: (taskId) => set((state) => ({
-        state: { ...state.state, current_task: taskId },
-        current_task: taskId
-    })),
+    setCurrentTask: async (taskId) => {
+        set((state) => ({
+            state: { ...state.state, current_task: taskId },
+            current_task: taskId
+        }));
+
+        // Если выбрана задача, загружаем её данные
+        if (taskId) {
+            try {
+                console.log('Загружаем данные задачи', taskId);
+                const result = await apiService.loadTask(taskId);
+                if (result.success) {
+                    set({ state: result.state });
+                    console.log('Данные задачи загружены:', result.state);
+                }
+            } catch (error) {
+                console.warn('Не удалось загрузить данные задачи:', error);
+            }
+        }
+    },
 
     setState: (newState) => set({ state: newState }),
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
+
+    loadTask2Data: async () => {
+        try {
+            set({ loading: true, error: null });
+            console.log('Загружаем данные для задачи 2');
+            const result = await apiService.loadTask(2);
+            if (result.success) {
+                set({ 
+                    state: result.state, 
+                    current_task: 2,
+                    loading: false 
+                });
+                console.log('Данные задачи 2 загружены:', result.state);
+            } else {
+                set({ error: 'Ошибка загрузки данных задачи 2', loading: false });
+            }
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Ошибка загрузки данных задачи 2',
+                loading: false
+            });
+        }
+    },
 
     loadState: async () => {
         try {
@@ -114,12 +154,12 @@ export const useEmulatorStore = create<{
     executeCode: async (taskId?: number) => {
         try {
             set({ loading: true, error: null });
-            
+
             // Если taskId не указан, используем текущий исходный код
-            const request = taskId 
+            const request = taskId
                 ? { task_id: taskId, step_by_step: false }
                 : { task_id: null, step_by_step: false, source_code: get().state.source_code };
-            
+
             const result = await apiService.executeCode(request);
             if (result.success) {
                 set({ state: result.state, loading: false });
@@ -137,6 +177,19 @@ export const useEmulatorStore = create<{
     executeStep: async () => {
         try {
             set({ loading: true, error: null });
+
+            // Если выбрана задача, но данные не загружены, загружаем их
+            const state = get().state;
+            const current_task = get().current_task;
+            if (current_task && state.memory.ram.length === 0) {
+                console.log('Загружаем данные задачи', current_task);
+                const result = await apiService.loadTask(current_task);
+                if (result.success) {
+                    set({ state: result.state, loading: false });
+                    return;
+                }
+            }
+
             const result = await apiService.executeStep();
             if (result.success) {
                 set({ state: result.state, loading: false });
@@ -155,49 +208,62 @@ export const useEmulatorStore = create<{
     executeRemaining: async () => {
         try {
             set({ loading: true, error: null });
+
+            // Если выбрана задача, но данные не загружены, загружаем их
+            const state = get().state;
+            const current_task = get().current_task;
+            if (current_task && state.memory.ram.length === 0) {
+                console.log('Загружаем данные задачи', current_task);
+                const result = await apiService.loadTask(current_task);
+                if (result.success) {
+                    set({ state: result.state, loading: false });
+                    return;
+                }
+            }
+
             console.log('Выполняем оставшиеся команды...');
-            
+
             let stepCount = 0;
             const maxSteps = 1000; // Защита от бесконечного цикла
             let lastState = null;
-            
+
             while (stepCount < maxSteps) {
                 const result = await apiService.executeStep();
-                
+
                 if (!result.success) {
                     set({ error: 'Ошибка выполнения команды', loading: false });
                     return;
                 }
-                
+
                 stepCount++;
                 lastState = result.state;
                 console.log(`Шаг ${stepCount}: Счетчик ${result.state.processor.program_counter}, Стек ${result.state.processor.stack}`);
-                
+
                 // Если программа остановлена, выходим из цикла
                 if (result.state.processor.is_halted) {
                     console.log('Программа остановлена');
                     break;
                 }
-                
+
                 // Если больше нет команд для выполнения
                 if (!result.continues) {
                     console.log('Нет больше команд для выполнения');
                     break;
                 }
-                
+
                 // Быстрое выполнение без задержки для лучшей производительности
                 // await new Promise(resolve => setTimeout(resolve, 50));
             }
-            
+
             // Обновляем финальное состояние
             if (lastState) {
                 set({ state: lastState, loading: false });
             } else {
                 set({ loading: false });
             }
-            
+
             console.log(`Выполнено ${stepCount} шагов. Финальный результат:`, lastState);
-            
+
         } catch (error) {
             set({
                 error: error instanceof Error ? error.message : 'Ошибка выполнения оставшихся команд',
@@ -211,8 +277,8 @@ export const useEmulatorStore = create<{
             set({ loading: true, error: null });
             const result = await apiService.reset();
             if (result.success) {
-                set({ 
-                    state: result.state, 
+                set({
+                    state: result.state,
                     loading: false,
                     error: null
                 });

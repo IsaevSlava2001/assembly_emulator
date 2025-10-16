@@ -42,6 +42,10 @@ class CompileRequest(BaseModel):
     """Запрос на компиляцию кода"""
     source_code: str
 
+class LoadTaskRequest(BaseModel):
+    """Запрос на загрузку данных задачи"""
+    task_id: int
+
 class ExecuteRequest(BaseModel):
     """Запрос на выполнение"""
     task_id: Optional[int] = None

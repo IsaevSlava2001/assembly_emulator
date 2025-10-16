@@ -44,6 +44,14 @@ class ApiService {
     });
   }
 
+  // Загрузить данные задачи
+  async loadTask(taskId: number): Promise<{ success: boolean; state: EmulatorState; message?: string }> {
+    return this.request('/api/load-task', {
+      method: 'POST',
+      body: JSON.stringify({ task_id: taskId }),
+    });
+  }
+
   // Выполнить код
   async executeCode(request: ExecuteRequest): Promise<{ success: boolean; state: EmulatorState; result?: any }> {
     return this.request('/api/execute', {

@@ -13,14 +13,14 @@ export const TaskPanel: React.FC = () => {
     });
   }, [loadTasks]);
 
-  const handleTaskSelect = (taskId: number) => {
+  const handleTaskSelect = async (taskId: number) => {
     // Toggle behavior: if same task is clicked, close it; otherwise open new task
     if (activeTask === taskId) {
       setActiveTask(null);
-      setCurrentTask(null);
+      await setCurrentTask(null);
     } else {
       setActiveTask(taskId);
-      setCurrentTask(taskId);
+      await setCurrentTask(taskId);
     }
   };
 

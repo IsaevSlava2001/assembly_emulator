@@ -50,19 +50,16 @@ export const CommandEditor: React.FC = () => {
 
   const handleLoadTaskExample = (taskId: number) => {
     const examples = {
-      1: `; Инициализация размера массива
-PUSH 7           ; Размер массива (7 элементов)
+      1: `PUSH 7
+; Элементы массива (в обратном порядке для последовательного доступа)
+PUSH 70
+PUSH 60  
+PUSH 50
+PUSH 40
+PUSH 30
+PUSH 20
+PUSH 10
 
-; Инициализация элементов массива
-PUSH 10          ; Элемент 1
-PUSH 20          ; Элемент 2
-PUSH 30          ; Элемент 3
-PUSH 40          ; Элемент 4
-PUSH 50          ; Элемент 5
-PUSH 60          ; Элемент 6
-PUSH 70          ; Элемент 7
-
-; Программа суммирования массива
 ; Стек: [10, 20, 30, 40, 50, 60, 70, 7]
 PUSH 0           ; Аккумулятор = 0
 
@@ -84,44 +81,96 @@ LOOP_START:
 
 LOOP_END:
   POP            ; Убираем счетчик (0)
-  HALT           ; Завершаем выполнение, сумма на вершине стека
+  HALT`,
 
-; Простая логика цикла:
-; 1. Проверяем счетчик (JZ)
-; 2. Берем элемент с вершины стека
-; 3. Складываем с аккумулятором
-; 4. Уменьшаем счетчик
-; 5. Повторяем цикл
-; Результат: программа корректно вычислит сумму 10+20+30+40+50+60+70 = 280`,
+      2: `; Свертка двух массивов (скалярное произведение) для 10 элементов
+; acc = 0
+PUSH 0
 
-      2: `; Свертка двух массивов
-PUSH [0x1000]    ; Размер массива A
-PUSH [0x1010]    ; Размер массива B
-PUSH 0           ; Инициализируем результат
+; i = 0
+PUSH 0x1001
+LOAD
+PUSH 0x1011
+LOAD
+MUL
+ADD
 
-CONV_LOOP:
-  DUP            ; Дублируем счетчик
-  JZ CONV_EXIT   ; Если счетчик = 0, выходим
-  DEC            ; Уменьшаем счетчик
-  
-  ; Загружаем элементы массивов
-  PUSH [0x1001]  ; Базовый адрес A
-  ADD            ; Добавляем смещение
-  LOAD           ; Загружаем A[i]
-  
-  PUSH [0x1011]  ; Базовый адрес B
-  ADD            ; Добавляем смещение
-  LOAD           ; Загружаем B[i]
-  
-  MUL            ; Умножаем A[i] * B[i]
-  ADD            ; Добавляем к результату
-  JMP CONV_LOOP  ; Повторяем цикл
+; i = 1
+PUSH 0x1002
+LOAD
+PUSH 0x1012
+LOAD
+MUL
+ADD
 
-CONV_EXIT:
-  POP            ; Убираем счетчик со стека
-  PUSH 0x1100    ; Адрес для результата
-  STORE          ; Сохраняем результат
-  HALT           ; Завершаем выполнение`
+; i = 2
+PUSH 0x1003
+LOAD
+PUSH 0x1013
+LOAD
+MUL
+ADD
+
+; i = 3
+PUSH 0x1004
+LOAD
+PUSH 0x1014
+LOAD
+MUL
+ADD
+
+; i = 4
+PUSH 0x1005
+LOAD
+PUSH 0x1015
+LOAD
+MUL
+ADD
+
+; i = 5
+PUSH 0x1006
+LOAD
+PUSH 0x1016
+LOAD
+MUL
+ADD
+
+; i = 6
+PUSH 0x1007
+LOAD
+PUSH 0x1017
+LOAD
+MUL
+ADD
+
+; i = 7
+PUSH 0x1008
+LOAD
+PUSH 0x1018
+LOAD
+MUL
+ADD
+
+; i = 8
+PUSH 0x1009
+LOAD
+PUSH 0x1019
+LOAD
+MUL
+ADD
+
+; i = 9
+PUSH 0x100A
+LOAD
+PUSH 0x101A
+LOAD
+MUL
+ADD
+
+; store result
+PUSH 0x1100
+STORE
+HALT`
     };
 
     setExampleCode(examples[taskId as keyof typeof examples] || '');

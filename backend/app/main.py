@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from typing import List, Dict, Any
 
 from .models import (
-    EmulatorState, CompileRequest, ExecuteRequest, ResetRequest, 
+    EmulatorState, CompileRequest, LoadTaskRequest, ExecuteRequest, ResetRequest, 
     TaskInfo, TaskData
 )
 from .processor import StackProcessor
@@ -88,6 +88,47 @@ async def compile_code(request: CompileRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Ошибка компиляции: {str(e)}")
 
+@app.post("/api/load-task")
+async def load_task(request: LoadTaskRequest):
+    """Загрузить данные задачи без выполнения программы"""
+    if not processor or not assembler:
+        raise HTTPException(status_code=500, detail="Processor not initialized")
+    
+    try:
+        task = task_manager.get_task(request.task_id)
+        if not task:
+            raise HTTPException(status_code=404, detail=f"Задача {request.task_id} не найдена")
+        
+        print(f"Loading task {request.task_id}")
+        print(f"Memory before setup: {processor.memory.ram[0x100:0x120]}")
+        
+        # Настраиваем данные для задачи
+        print(f"Calling setup_task_data for task {request.task_id}")
+        task_manager.setup_task_data(processor, request.task_id)
+        print(f"setup_task_data completed")
+        
+        print(f"Memory after setup: {processor.memory.ram[0x100:0x120]}")
+        
+        # Компилируем и загружаем программу (но не выполняем)
+        machine_code, _ = assembler.assemble(task["program"])
+        processor.load_program(machine_code, task["program"])
+        
+        print(f"Memory after load_program: {processor.memory.ram[0x100:0x120]}")
+        
+        # Проверяем, что данные все еще в памяти
+        print(f"Final memory check: {processor.memory.ram[0x100:0x120]}")
+        
+        # Устанавливаем current_task в состоянии процессора
+        processor.processor.current_task = request.task_id
+        
+        return {
+            "success": True,
+            "state": processor.get_state(),
+            "message": f"Данные задачи {request.task_id} загружены"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Ошибка загрузки задачи: {str(e)}")
+
 @app.post("/api/execute")
 async def execute_code(request: ExecuteRequest):
     """Выполнить код"""
@@ -104,18 +145,14 @@ async def execute_code(request: ExecuteRequest):
             # Настраиваем данные для задачи
             task_manager.setup_task_data(processor, request.task_id)
             
-            # Компилируем и выполняем программу
+            # Компилируем и загружаем программу
             machine_code, _ = assembler.assemble(task["program"])
+            processor.load_program(machine_code, task["program"])
             
-            # Выполняем инструкции
-            for instruction_line in machine_code:
-                parts = instruction_line.split()
-                instruction = parts[0]
-                operand = processor._parse_operand(parts[1]) if len(parts) > 1 else None
-                
-                processor.execute_instruction(instruction, operand)
-                
-                if processor.processor.is_halted:
+            # Выполняем инструкции пошагово для сохранения истории
+            while not processor.processor.is_halted:
+                success = processor.step()
+                if not success:
                     break
             
             # Проверяем результат
@@ -133,15 +170,12 @@ async def execute_code(request: ExecuteRequest):
                 raise HTTPException(status_code=400, detail="Не указан исходный код для выполнения")
             
             machine_code, _ = assembler.assemble(request.source_code)
+            processor.load_program(machine_code, request.source_code)
             
-            for instruction_line in machine_code:
-                parts = instruction_line.split()
-                instruction = parts[0]
-                operand = processor._parse_operand(parts[1]) if len(parts) > 1 else None
-                
-                processor.execute_instruction(instruction, operand)
-                
-                if processor.processor.is_halted:
+            # Выполняем инструкции пошагово для сохранения истории
+            while not processor.processor.is_halted:
+                success = processor.step()
+                if not success:
                     break
             
             return {
