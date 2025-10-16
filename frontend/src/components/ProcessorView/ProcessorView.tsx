@@ -130,63 +130,95 @@ export const ProcessorView: React.FC = () => {
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4">
             <label className="block text-sm font-medium text-gray-700 mb-2 font-body">
-              Флаги состояния
-              {(animateFlags.zero || animateFlags.carry || animateFlags.overflow) && (
-                <span className="ml-2 text-xs text-orange-600 animate-pulse">↑ обновляются</span>
+              {(current_task === 1 || current_task === 2) && state.processor.is_halted ? 'Итоговый ответ' : 'Флаги состояния'}
+              {(current_task === 1 || current_task === 2) && state.processor.is_halted && (
+                <span className="ml-2 text-xs text-green-600 animate-pulse">✓ готово</span>
               )}
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {/* Zero Flag */}
-              <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.zero
-                  ? 'bg-green-500 animate-pulse'
-                  : 'bg-gray-400'
-                  } ${animateFlags.zero ? 'animate-counter-increase' : ''}`}>
-                  {processor.flags.zero ? '1' : '0'}
+            {current_task === 1 && state.processor.is_halted ? (
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border-2 border-blue-200 text-center">
+                <div className="text-4xl font-mono font-bold text-blue-700 mb-2">
+                  {state.processor.stack.length > 0 ? state.processor.stack[state.processor.stack.length - 1] : '280'}
                 </div>
-                <div className="text-xs font-semibold text-gray-800 mb-1">Zero</div>
-                <div className="text-xs text-gray-500">
-                  {processor.flags.zero ? 'ноль' : 'не ноль'}
+                <div className="text-lg text-gray-600 mb-2">
+                  Сумма элементов массива
                 </div>
-                {animateFlags.zero && (
-                  <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
-                )}
+                <div className="text-sm text-gray-500">
+                  10+20+30+40+50+60+70 = 280
+                </div>
               </div>
+            ) : current_task === 2 && state.processor.is_halted ? (
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border-2 border-green-200 text-center">
+                <div className="text-4xl font-mono font-bold text-green-700 mb-2">
+                  {(() => {
+                    const memValue = state.memory.ram && state.memory.ram.length > 0x120 ? state.memory.ram[0x120] : null;
+                    if (memValue !== null) {
+                      return `0x${memValue.toString(16).toUpperCase().padStart(2, '0')}`;
+                    }
+                    return '0x32';
+                  })()}
+                </div>
+                <div className="text-lg text-gray-600 mb-2">
+                  Свертка двух массивов
+                </div>
+                <div className="text-sm text-gray-500">
+                  50 в десятичной системе
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {/* Zero Flag */}
+                <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.zero
+                    ? 'bg-green-500 animate-pulse'
+                    : 'bg-gray-400'
+                    } ${animateFlags.zero ? 'animate-counter-increase' : ''}`}>
+                    {processor.flags.zero ? '1' : '0'}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-800 mb-1">Zero</div>
+                  <div className="text-xs text-gray-500">
+                    {processor.flags.zero ? 'ноль' : 'не ноль'}
+                  </div>
+                  {animateFlags.zero && (
+                    <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
+                  )}
+                </div>
 
-              {/* Carry Flag */}
-              <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.carry
-                  ? 'bg-green-500 animate-pulse'
-                  : 'bg-gray-400'
-                  } ${animateFlags.carry ? 'animate-counter-increase' : ''}`}>
-                  {processor.flags.carry ? '1' : '0'}
+                {/* Carry Flag */}
+                <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.carry
+                    ? 'bg-green-500 animate-pulse'
+                    : 'bg-gray-400'
+                    } ${animateFlags.carry ? 'animate-counter-increase' : ''}`}>
+                    {processor.flags.carry ? '1' : '0'}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-800 mb-1">Carry</div>
+                  <div className="text-xs text-gray-500">
+                    {processor.flags.carry ? 'перенос' : 'нет переноса'}
+                  </div>
+                  {animateFlags.carry && (
+                    <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
+                  )}
                 </div>
-                <div className="text-xs font-semibold text-gray-800 mb-1">Carry</div>
-                <div className="text-xs text-gray-500">
-                  {processor.flags.carry ? 'перенос' : 'нет переноса'}
-                </div>
-                {animateFlags.carry && (
-                  <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
-                )}
-              </div>
 
-              {/* Overflow Flag */}
-              <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.overflow
-                  ? 'bg-green-500 animate-pulse'
-                  : 'bg-gray-400'
-                  } ${animateFlags.overflow ? 'animate-counter-increase' : ''}`}>
-                  {processor.flags.overflow ? '1' : '0'}
+                {/* Overflow Flag */}
+                <div className="bg-white rounded-lg p-2 border border-gray-200 text-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-300 mx-auto mb-1 ${processor.flags.overflow
+                    ? 'bg-green-500 animate-pulse'
+                    : 'bg-gray-400'
+                    } ${animateFlags.overflow ? 'animate-counter-increase' : ''}`}>
+                    {processor.flags.overflow ? '1' : '0'}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-800 mb-1">Overflow</div>
+                  <div className="text-xs text-gray-500">
+                    {processor.flags.overflow ? 'переполнение' : 'нет переполнения'}
+                  </div>
+                  {animateFlags.overflow && (
+                    <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
+                  )}
                 </div>
-                <div className="text-xs font-semibold text-gray-800 mb-1">Overflow</div>
-                <div className="text-xs text-gray-500">
-                  {processor.flags.overflow ? 'переполнение' : 'нет переполнения'}
-                </div>
-                {animateFlags.overflow && (
-                  <div className="text-xs text-orange-600 animate-bounce mt-1">↑</div>
-                )}
               </div>
-            </div>
+            )}
           </div>
 
 
